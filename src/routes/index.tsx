@@ -402,7 +402,7 @@ function Index() {
             <a href={cv} download="CV-Theophile-Ras.pdf" className="rounded-lg border border-foreground px-6 py-3 font-medium hover:bg-muted">{copy.hero.download}</a>
           </div>
         </div>
-        <div className="relative mx-auto w-full max-w-[34rem] xl:translate-x-8">
+        <div className="relative mx-auto w-full max-w-[34rem] xl:translate-x-12">
           <ProfileOrbit portraitAlt={copy.hero.portraitAlt} />
           <div className="card-soft absolute -bottom-2 right-0 flex items-center gap-2 px-4 py-3 text-sm font-medium">{copy.hero.role}</div>
         </div>

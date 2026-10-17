@@ -268,6 +268,20 @@
     transform: translate(-50%, -50%);
   }
 
+  .dark .profile-orbit__ring {
+    border-color: color-mix(in oklab, var(--color-brand), var(--color-background) 58%);
+  }
+
+  .dark .profile-orbit__badge {
+    border-color: color-mix(in oklab, var(--color-brand), var(--color-background) 62%);
+    box-shadow: 0 4px 12px oklch(0 0 0 / 55%);
+  }
+
+  .dark .profile-orbit__portrait {
+    border-color: color-mix(in oklab, var(--color-brand), var(--color-background) 48%);
+    box-shadow: 0 16px 36px oklch(0 0 0 / 60%);
+  }
+
   .field {
     @apply mt-2 w-full rounded-lg border border-foreground/70 bg-background px-3 py-3 outline-none focus:border-brand;
   }
