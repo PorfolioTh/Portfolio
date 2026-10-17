@@ -168,7 +168,7 @@ function Index() {
 
       <section id="projets" className="bg-surface py-24">
         <Title t="Projets et realisation" />
-        <div className="page-rail grid max-w-6xl gap-6 md:grid-cols-3">
+        <div className="page-rail grid max-w-7xl gap-8 md:grid-cols-3">
           {projects.map((p) => (
             <article key={p.t} className="card-soft overflow-hidden transition hover:-translate-y-1">
               <img src={p.img} alt={p.t} className="h-48 w-full object-cover" />
