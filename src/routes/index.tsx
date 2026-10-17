@@ -31,9 +31,43 @@ export const Route = createFileRoute("/")({
 const skillIcons = [LayoutTemplate, Code2, Database, Palette, ListChecks, Wrench];
 const projectImages = [maritime, aesna, vanilla];
 const socialIcons = [Facebook, Instagram, MessageCircle, Linkedin, Gitlab, Github];
+const orbitIcons = Object.entries(import.meta.glob<string>("@/assets/icons/*.jpg", { eager: true, import: "default" }))
+  .sort(([first], [second]) => first.localeCompare(second));
 const WELCOME_TOAST_DURATION_MS = 8000;
 
 type FloatingPosition = { left: number; top: number };
+
+function ProfileOrbit({ portraitAlt }: { portraitAlt: string }) {
+  const rings = [0, 1, 2].map((ringIndex) =>
+    orbitIcons
+      .filter((_, iconIndex) => iconIndex % 3 === ringIndex)
+      .map(([src], iconIndex, icons) => {
+        const angle = (iconIndex / icons.length) * Math.PI * 2 - Math.PI / 2;
+        return {
+          src,
+          left: `${50 + Math.cos(angle) * 50}%`,
+          top: `${50 + Math.sin(angle) * 50}%`,
+        };
+      }),
+  );
+
+  return (
+    <div className="profile-orbit">
+      {rings.map((icons, ringIndex) => (
+        <div key={ringIndex} className={`profile-orbit__ring profile-orbit__ring--${ringIndex + 1}`} aria-hidden="true">
+          {icons.map(({ src, left, top }) => (
+            <div key={src} className="profile-orbit__badge" style={{ left, top }}>
+              <img src={src} alt="" />
+            </div>
+          ))}
+        </div>
+      ))}
+      <div className="profile-orbit__portrait">
+        <img src={portrait} alt={portraitAlt} className="h-full w-full scale-110 object-cover" />
+      </div>
+    </div>
+  );
+}
 
 function clampFloatingPosition(left: number, top: number, width = 40, height = width) {
   const margin = 8;
@@ -368,10 +402,8 @@ function Index() {
             <a href={cv} download="CV-Theophile-Ras.pdf" className="rounded-lg border border-foreground px-6 py-3 font-medium hover:bg-muted">{copy.hero.download}</a>
           </div>
         </div>
-        <div className="relative mx-auto xl:translate-x-16">
-          <div className="h-72 w-72 translate-x-4 overflow-hidden rounded-full border-4 border-brand-soft shadow-2xl md:h-[26rem] md:w-[26rem] md:translate-x-6">
-            <img src={portrait} alt={copy.hero.portraitAlt} className="h-full w-full scale-110 object-cover" />
-          </div>
+        <div className="relative mx-auto w-full max-w-[34rem] xl:translate-x-8">
+          <ProfileOrbit portraitAlt={copy.hero.portraitAlt} />
           <div className="card-soft absolute -bottom-2 right-0 flex items-center gap-2 px-4 py-3 text-sm font-medium">{copy.hero.role}</div>
         </div>
       </section>
