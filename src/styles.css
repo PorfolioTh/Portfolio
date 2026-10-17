@@ -200,19 +200,6 @@
     pointer-events: none;
   }
 
-  .profile-orbit::before {
-    position: absolute;
-    z-index: -1;
-    top: 9%;
-    right: 1%;
-    width: 5rem;
-    height: 5rem;
-    background-image: radial-gradient(color-mix(in oklab, var(--color-brand), transparent 58%) 2px, transparent 2.5px);
-    background-size: 1.25rem 1.25rem;
-    content: "";
-    opacity: 0.7;
-  }
-
   .profile-orbit__ring {
     position: absolute;
     top: 50%;
