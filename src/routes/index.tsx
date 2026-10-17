@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { sendContactMessage } from "@/lib/contact.functions";
 import {
   Briefcase, Code2, Database, Facebook, Github, Gitlab, Instagram, LayoutTemplate,
   Linkedin, Mail, MapPin, MessageCircle, Mouse, Palette, Phone, ListChecks, Wrench,
@@ -71,7 +73,21 @@ function Title({ t, sub, big }: { t: string; sub?: string; big?: boolean }) {
 }
 
 function Index() {
-  const [sent, setSent] = useState(false);
+  const [status, setStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
+  const send = useServerFn(sendContactMessage);
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const f = new FormData(form);
+    setStatus("loading");
+    try {
+      await send({ data: Object.fromEntries(f) });
+      form.reset();
+      setStatus("ok");
+    } catch {
+      setStatus("error");
+    }
+  }
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-20 bg-background/90 backdrop-blur">
@@ -203,16 +219,17 @@ function Index() {
               {socials.map((I, i) => <a key={i} href="#" className="flex h-11 w-11 items-center justify-center rounded-full bg-muted text-brand hover:bg-brand-soft"><I className="h-5 w-5" /></a>)}
             </div>
           </div>
-          <form className="card-soft space-y-5 p-9" onSubmit={(e) => { e.preventDefault(); setSent(true); (e.target as HTMLFormElement).reset(); }}>
+          <form className="card-soft space-y-5 p-9" onSubmit={onSubmit}>
             <div className="grid gap-5 sm:grid-cols-2">
-              <label className="text-sm font-medium">Nom<input required className="field" /></label>
-              <label className="text-sm font-medium">Téléphone<input className="field" /></label>
+              <label className="text-sm font-medium">Nom<input name="name" required maxLength={100} className="field" /></label>
+              <label className="text-sm font-medium">Téléphone<input name="phone" maxLength={30} className="field" /></label>
             </div>
-            <label className="block text-sm font-medium">Email<input type="email" required className="field" /></label>
-            <label className="block text-sm font-medium">Sujet<input className="field" /></label>
-            <label className="block text-sm font-medium">Message<textarea required rows={6} className="field" /></label>
-            <button className="w-full rounded-lg bg-primary py-3 font-medium text-primary-foreground hover:opacity-90">Envoyer le message</button>
-            {sent && <p className="text-center text-sm text-brand">Merci ! Votre message a bien été pris en compte.</p>}
+            <label className="block text-sm font-medium">Email<input name="email" type="email" maxLength={255} required className="field" /></label>
+            <label className="block text-sm font-medium">Sujet<input name="subject" maxLength={200} className="field" /></label>
+            <label className="block text-sm font-medium">Message<textarea name="message" required maxLength={5000} rows={6} className="field" /></label>
+            <button disabled={status === "loading"} className="w-full disabled:opacity-60 rounded-lg bg-primary py-3 font-medium text-primary-foreground hover:opacity-90">{status === "loading" ? "Envoi..." : "Envoyer le message"}</button>
+            {status === "ok" && <p className="text-center text-sm text-brand">Merci ! Votre message a bien été envoyé.</p>}
+            {status === "error" && <p className="text-center text-sm text-destructive">Une erreur est survenue, veuillez réessayer.</p>}
           </form>
         </div>
       </section>
