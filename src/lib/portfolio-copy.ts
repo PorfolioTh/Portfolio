@@ -50,8 +50,8 @@ export const portfolioCopy: Record<Locale, PortfolioCopy> = {
             title: "Compétences techniques",
             subtitle: "Technologies et outils que j'utilise au quotidien",
             categories: [
-                { title: "Frontend", items: ["React.js", "Vue.js", "JavaScript", "TypeScript", "HTML/CSS", "TailwindCSS", "SASS"] },
-                { title: "Backend", items: ["Node.js", "PHP"] },
+                { title: "Frontend", items: ["React.js", "Vue.js", "Next.js", "JavaScript", "TypeScript", "HTML/CSS", "TailwindCSS", "SASS"] },
+                { title: "Backend", items: ["Node.js", "PHP", "Django REST Framework", "Spring Boot"] },
                 { title: "Base de données", items: ["MongoDB", "MySQL"] },
                 { title: "Design", items: ["Figma"] },
                 { title: "Méthodologies", items: ["2TUP", "Merise", "Agile / Scrum", "UML"] },
@@ -142,8 +142,8 @@ export const portfolioCopy: Record<Locale, PortfolioCopy> = {
             title: "Technical skills",
             subtitle: "Technologies and tools I use every day",
             categories: [
-                { title: "Frontend", items: ["React.js", "Vue.js", "JavaScript", "TypeScript", "HTML/CSS", "TailwindCSS", "SASS"] },
-                { title: "Backend", items: ["Node.js", "PHP"] },
+                { title: "Frontend", items: ["React.js", "Vue.js", "Next.js", "JavaScript", "TypeScript", "HTML/CSS", "TailwindCSS", "SASS"] },
+                { title: "Backend", items: ["Node.js", "PHP", "Django REST Framework", "Spring Boot"] },
                 { title: "Databases", items: ["MongoDB", "MySQL"] },
                 { title: "Design", items: ["Figma"] },
                 { title: "Methodologies", items: ["2TUP", "Merise", "Agile / Scrum", "UML"] },
