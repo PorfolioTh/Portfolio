@@ -42,7 +42,7 @@ function clampFloatingPosition(left: number, top: number, width = 40, height = w
   };
 }
 
-function FloatingLanguageSelector({ language, label, dragLabel, onChange }: { language: Locale; label: string; dragLabel: string; onChange: (language: Locale) => void }) {
+function FloatingLanguageSelector({ language, labels, dragLabel, onChange }: { language: Locale; labels: { currentFrench: string; currentEnglish: string; switchToEnglish: string; switchToFrench: string }; dragLabel: string; onChange: (language: Locale) => void }) {
   const [position, setPosition] = useState<FloatingPosition | null>(null);
   const dragState = useRef<{ pointerX: number; pointerY: number; left: number; top: number; currentLeft: number; currentTop: number; moved: boolean } | null>(null);
   const suppressClick = useRef(false);
@@ -53,19 +53,19 @@ function FloatingLanguageSelector({ language, label, dragLabel, onChange }: { la
       if (saved) {
         const parsed = JSON.parse(saved) as { left?: unknown; top?: unknown };
         if (typeof parsed.left === "number" && typeof parsed.top === "number") {
-          setPosition(clampFloatingPosition(parsed.left, parsed.top, 96, 40));
+          setPosition(clampFloatingPosition(parsed.left, parsed.top, 48, 40));
         }
       }
     } catch {
       // Ignore invalid or unavailable position storage.
     }
 
-    const clampAfterResize = () => setPosition((current) => current ? clampFloatingPosition(current.left, current.top, 96, 40) : current);
+    const clampAfterResize = () => setPosition((current) => current ? clampFloatingPosition(current.left, current.top, 48, 40) : current);
     window.addEventListener("resize", clampAfterResize);
     return () => window.removeEventListener("resize", clampAfterResize);
   }, []);
 
-  function startDrag(event: React.PointerEvent<HTMLDivElement>) {
+  function startDrag(event: React.PointerEvent<HTMLButtonElement>) {
     if (event.button !== 0) return;
     const bounds = event.currentTarget.getBoundingClientRect();
     dragState.current = { pointerX: event.clientX, pointerY: event.clientY, left: bounds.left, top: bounds.top, currentLeft: bounds.left, currentTop: bounds.top, moved: false };
@@ -73,7 +73,7 @@ function FloatingLanguageSelector({ language, label, dragLabel, onChange }: { la
     captureTarget.setPointerCapture(event.pointerId);
   }
 
-  function moveDrag(event: React.PointerEvent<HTMLDivElement>) {
+  function moveDrag(event: React.PointerEvent<HTMLButtonElement>) {
     const drag = dragState.current;
     if (!drag) return;
     const deltaX = event.clientX - drag.pointerX;
@@ -101,38 +101,33 @@ function FloatingLanguageSelector({ language, label, dragLabel, onChange }: { la
     }
   }
 
-  function selectLanguage(next: Locale) {
+  function toggleLanguage() {
     if (suppressClick.current) {
       suppressClick.current = false;
       return;
     }
-    onChange(next);
+    onChange(language === "fr" ? "en" : "fr");
   }
 
+  const currentLabel = language === "fr" ? labels.currentFrench : labels.currentEnglish;
+  const nextLabel = language === "fr" ? labels.switchToEnglish : labels.switchToFrench;
+
   return (
-    <div
-      role="group"
-      aria-label={label}
-      title={`${label}. ${dragLabel}`}
+    <button
+      type="button"
+      onClick={toggleLanguage}
       onPointerDown={startDrag}
       onPointerMove={moveDrag}
       onPointerUp={endDrag}
       onPointerCancel={endDrag}
+      aria-label={`${currentLabel}. ${nextLabel}. ${dragLabel}.`}
+      aria-pressed={language === "en"}
+      title={`${currentLabel}. ${nextLabel}. ${dragLabel}.`}
       style={position ? { left: position.left, top: position.top, right: "auto", bottom: "auto" } : undefined}
-      className="fixed bottom-24 right-6 z-50 flex h-10 w-24 touch-none select-none cursor-grab items-center rounded-full border border-border bg-background p-1 shadow-lg active:cursor-grabbing"
+      className="fixed bottom-20 right-6 z-50 flex h-10 w-12 touch-none select-none cursor-grab items-center justify-center rounded-full border border-border bg-background text-xs font-bold text-foreground shadow-lg transition-colors hover:bg-muted active:cursor-grabbing focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      {(["fr", "en"] as const).map((option) => (
-        <button
-          key={option}
-          type="button"
-          onClick={() => selectLanguage(option)}
-          aria-pressed={language === option}
-          className={`flex h-8 flex-1 items-center justify-center rounded-full text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${language === option ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
-        >
-          {option.toUpperCase()}
-        </button>
-      ))}
-    </div>
+      {language.toUpperCase()}
+    </button>
   );
 }
 
@@ -317,7 +312,7 @@ function Index() {
           </nav>
         </div>
       </header>
-      <FloatingLanguageSelector language={language} onChange={changeLanguage} label={copy.languageSelector} dragLabel={copy.theme.drag} />
+      <FloatingLanguageSelector language={language} onChange={changeLanguage} labels={copy.languageSelector} dragLabel={copy.theme.drag} />
       {welcomeToastState !== "hidden" && (
         <div
           role="status"

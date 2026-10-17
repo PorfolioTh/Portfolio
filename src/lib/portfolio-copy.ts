@@ -34,7 +34,7 @@ export const portfolioCopy: Record<Locale, PortfolioCopy> = {
             socialDescription: "Applications modernes, rapides et scalables en Vue, React et Node.js.",
         },
         navigation: { home: "Accueil", skills: "Compétences", experience: "Expériences", projects: "Projets", education: "Éducation", contact: "Contact" },
-        languageSelector: "Choisir la langue",
+        languageSelector: { currentFrench: "Langue sélectionnée : français", currentEnglish: "Langue sélectionnée : anglais", switchToEnglish: "Passer en anglais", switchToFrench: "Passer en français" },
         theme: { switchToLight: "Activer le mode clair", switchToDark: "Activer le mode sombre", light: "Mode clair", dark: "Mode sombre", drag: "Glisser pour déplacer" },
         toast: { welcome: "Bienvenue dans mon univers", close: "Fermer la notification" },
         hero: {
@@ -126,7 +126,7 @@ export const portfolioCopy: Record<Locale, PortfolioCopy> = {
             socialDescription: "Modern, fast, and scalable applications with Vue, React, and Node.js.",
         },
         navigation: { home: "Home", skills: "Skills", experience: "Experience", projects: "Projects", education: "Education", contact: "Contact" },
-        languageSelector: "Choose language",
+        languageSelector: { currentFrench: "Selected language: French", currentEnglish: "Selected language: English", switchToEnglish: "Switch to English", switchToFrench: "Switch to French" },
         theme: { switchToLight: "Switch to light mode", switchToDark: "Switch to dark mode", light: "Light mode", dark: "Dark mode", drag: "Drag to move" },
         toast: { welcome: "Welcome to my world", close: "Close notification" },
         hero: {
