@@ -8,6 +8,13 @@
       "when": 1792277081834,
       "tag": "0000_create_contact_messages",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792277200081,
+      "tag": "0001_contact_messages_anon_insert",
+      "breakpoints": true
     }
   ]
 }
