@@ -6,7 +6,7 @@ import {
   Briefcase, Code2, Database, Facebook, Github, Gitlab, Instagram, LayoutTemplate,
   Linkedin, Mail, MapPin, MessageCircle, Mouse, Palette, Phone, ListChecks, Wrench,
 } from "lucide-react";
-import portrait from "@/assets/portrait.jpg";
+import portrait from "@/assets/portrait.jfif";
 import maritime from "@/assets/maritime.jpg";
 import aesna from "@/assets/aesna.jpg";
 import vanilla from "@/assets/vanilla.jpg";
@@ -15,9 +15,9 @@ import handshake from "@/assets/handshake.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "RASOLOFOSON Theophile — Développeur logiciel" },
-      { name: "description", content: "Portfolio de RASOLOFOSON Theophile, développeur Vue, React et Node.js à Antananarivo." },
-      { property: "og:title", content: "RASOLOFOSON Theophile — Développeur logiciel" },
+      { title: "RASOLOFOSON Théophile — Développeur logiciel" },
+      { name: "description", content: "Portfolio de RASOLOFOSON Théophile, développeur Vue, React et Node.js à Antsirabe." },
+      { property: "og:title", content: "RASOLOFOSON Théophile — Développeur logiciel" },
       { property: "og:description", content: "Applications modernes, rapides et scalables en Vue, React et Node.js." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -94,7 +94,7 @@ function Index() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <a href="#accueil" className="-ml-6 flex items-center gap-3 text-lg font-medium xl:-ml-20">
             <img src={portrait} alt="" className="h-11 w-11 rounded-full border object-cover" />
-            Theophile
+            Théophile
           </a>
           <nav className="hidden gap-8 text-sm font-medium md:flex lg:gap-10">
             {nav.map(([l, id], i) => (
@@ -108,7 +108,7 @@ function Index() {
         <div>
           <p className="font-medium text-brand">👋 Bienvenue dans mon univers</p>
           <h1 className="mt-6 text-5xl font-bold leading-tight md:text-6xl">
-            Bonjour, je suis <span className="block text-brand">RASOLOFOSON Theophile</span>
+            Bonjour, je suis <span className="block text-brand">RASOLOFOSON Théophile</span>
           </h1>
           <p className="mt-6 text-lg text-muted-foreground">
             Développeur logiciel spécialisé en <b className="text-foreground">Vue, React, Node.js</b>. Je transforme des idées en applications modernes, rapides et scalables.
@@ -116,15 +116,15 @@ function Index() {
           <div className="mt-6 flex flex-wrap gap-2">
             {["JavaScript", "TypeScript", "Vue", "React", "Node.js"].map((s) => <span key={s} className="chip">{s}</span>)}
           </div>
-          <p className="mt-6 flex items-center gap-1 font-medium text-brand"><MapPin className="h-5 w-5" /> Antananarivo, Madagascar</p>
+          <p className="mt-6 flex items-center gap-1 font-medium text-brand"><MapPin className="h-5 w-5" /> Antsirabe, Madagascar</p>
           <div className="mt-8 flex gap-4">
             <a href="#contact" className="rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground hover:opacity-90">Me contacter</a>
             <a href="#" className="rounded-lg border border-foreground px-6 py-3 font-medium hover:bg-muted">Télécharger CV</a>
           </div>
         </div>
-        <div className="relative mx-auto xl:translate-x-12">
+        <div className="relative mx-auto xl:translate-x-16">
           <div className="h-72 w-72 translate-x-4 overflow-hidden rounded-full border-4 border-brand-soft shadow-2xl md:h-[26rem] md:w-[26rem] md:translate-x-6">
-            <img src={portrait} alt="RASOLOFOSON Theophile" className="h-full w-full scale-110 object-cover" />
+            <img src={portrait} alt="RASOLOFOSON Théophile" className="h-full w-full scale-110 object-cover" />
           </div>
           <div className="card-soft absolute -bottom-2 right-0 flex items-center gap-2 px-4 py-3 text-sm font-medium">🧑‍💻 Dev Full Stack</div>
         </div>
@@ -133,7 +133,7 @@ function Index() {
 
       <section id="competences" className="bg-surface py-24">
         <Title t="Compétences techniques" sub="Technologies & outils que j'utilise au quotidien" big />
-        <div className="page-rail grid max-w-5xl gap-6 md:grid-cols-3">
+        <div className="page-rail grid max-w-7xl gap-8 md:grid-cols-3">
           {skills.map(({ t, i: I, s }) => (
             <div key={t} className="card-soft p-7 transition hover:-translate-y-1">
               <div className="flex items-center gap-4"><div className="icon-tile"><I className="h-5 w-5" /></div><h3 className="text-lg font-medium">{t}</h3></div>
@@ -145,9 +145,9 @@ function Index() {
 
       <section id="experiences" className="py-24">
         <Title t="Expériences Professionnelles" />
-        <div className="page-rail relative max-w-4xl">
+        <div className="page-rail relative max-w-7xl">
           <div className="absolute left-1/2 top-0 hidden h-full w-px bg-brand-soft md:block" />
-          <div className="space-y-10">
+          <div className="space-y-12">
             {xp.map(([y, c, r, d], i) => (
               <div key={i} className={`relative md:w-1/2 ${i % 2 ? "md:ml-auto md:pl-0" : "md:pr-0"}`}>
                 <span className={`absolute top-1/2 hidden h-2.5 w-2.5 rounded-full bg-brand md:block ${i % 2 ? "-left-[5px]" : "-right-[5px]"}`} />
@@ -206,7 +206,7 @@ function Index() {
         <div className="page-rail grid max-w-6xl gap-10 md:grid-cols-2">
           <div className="card-soft p-9">
             <img src={handshake} alt="" className="h-32 w-32 rounded-full object-cover" />
-            <h3 className="mt-5 text-2xl font-bold">RASOLOFOSON Theophile</h3>
+            <h3 className="mt-5 text-2xl font-bold">RASOLOFOSON Théophile</h3>
             <p className="font-medium text-brand">Développeur Logiciel</p>
             <p className="mt-4 text-muted-foreground">Disponible pour vos projets web, mobile et systèmes.</p>
             <ul className="mt-3 space-y-3 text-sm">
@@ -254,11 +254,11 @@ function Index() {
             <ul className="mt-4 space-y-3 text-sm">
               <li className="flex items-center gap-3"><Phone className="h-5 w-5" /> +261 32 64 54 167</li>
               <li className="flex items-center gap-3"><Mail className="h-5 w-5" /> michaelnadrasana@gmail.com</li>
-              <li className="flex items-center gap-3"><MapPin className="h-5 w-5" /> Antananarivo, Madagascar</li>
+              <li className="flex items-center gap-3"><MapPin className="h-5 w-5" /> Antsirabe, Madagascar</li>
             </ul>
           </div>
         </div>
-        <p className="page-rail mt-12 max-w-6xl border-t border-footer-foreground/10 pt-6 text-center text-sm opacity-50">© 2026 RASOLOFOSON Theophile</p>
+        <p className="page-rail mt-12 max-w-6xl border-t border-footer-foreground/10 pt-6 text-center text-sm opacity-50">© 2026 RASOLOFOSON Théophile</p>
       </footer>
     </div>
   );
