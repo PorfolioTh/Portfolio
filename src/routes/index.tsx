@@ -259,7 +259,7 @@ function Index() {
         {darkMode ? <Sun aria-hidden="true" className="h-5 w-5" /> : <Moon aria-hidden="true" className="h-5 w-5" />}
       </button>
 
-      <section id="accueil" className="page-rail grid max-w-6xl items-center gap-12 pb-10 pt-4 md:grid-cols-2">
+      <section id="accueil" className="page-rail grid max-w-6xl scroll-mt-28 items-center gap-12 pb-10 pt-4 md:grid-cols-2">
         <div>
           <h1 className="mt-6 text-5xl font-bold leading-tight md:text-6xl">
             Bonjour, je suis <span className="block text-brand">RASOLOFOSON Théophile</span>
