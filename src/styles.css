@@ -185,6 +185,89 @@
   .field {
     @apply mt-2 w-full rounded-lg border border-foreground/70 bg-background px-3 py-3 outline-none focus:border-brand;
   }
+
+  .welcome-toast-enter {
+    animation: welcome-toast-enter 450ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .welcome-toast-exit {
+    animation: welcome-toast-exit 350ms ease-in both;
+  }
+
+  .welcome-wave {
+    display: inline-block;
+    transform-origin: 70% 70%;
+    animation: welcome-wave 1.4s ease-in-out infinite;
+    transition: transform 180ms ease-out;
+  }
+
+  .welcome-wave-stopped {
+    animation: none;
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes welcome-toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes welcome-toast-exit {
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+}
+
+@keyframes welcome-wave {
+
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  15% {
+    transform: rotate(16deg);
+  }
+
+  30% {
+    transform: rotate(-8deg);
+  }
+
+  45% {
+    transform: rotate(16deg);
+  }
+
+  60% {
+    transform: rotate(-4deg);
+  }
+
+  75% {
+    transform: rotate(10deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .welcome-toast-enter,
+  .welcome-toast-exit {
+    animation-duration: 1ms;
+  }
+
+  .welcome-wave {
+    animation: none;
+  }
+
+  .welcome-wave-stopped {
+    transition: none;
+  }
 }
 
 @media (min-width: 80rem) {

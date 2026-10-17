@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { sendContactMessage } from "@/lib/contact.functions";
 import {
   Briefcase, Code2, Database, Facebook, Github, Gitlab, Instagram, LayoutTemplate,
-  GraduationCap, Linkedin, Mail, MapPin, MessageCircle, Moon, Palette, Phone, Sun, ListChecks, Wrench,
+  GraduationCap, Linkedin, Mail, MapPin, MessageCircle, Moon, Palette, Phone, Sun, ListChecks, Wrench, X,
 } from "lucide-react";
 import portrait from "@/assets/portrait.jfif";
 import maritime from "@/assets/maritime.jpg";
@@ -61,6 +61,7 @@ const edu = [
 ];
 
 const socials = [Facebook, Instagram, MessageCircle, Linkedin, Gitlab, Github];
+const WELCOME_TOAST_DURATION_MS = 8000;
 
 function clampFloatingPosition(left: number, top: number, size = 40) {
   const margin = 8;
@@ -83,12 +84,15 @@ function Title({ t, sub, big }: { t: string; sub?: string; big?: boolean }) {
 function Index() {
   const [status, setStatus] = useState<"idle" | "loading" | "ok" | "saved" | "error">("idle");
   const [darkMode, setDarkMode] = useState(false);
+  const [welcomeToastState, setWelcomeToastState] = useState<"visible" | "closing" | "hidden">("visible");
   const [togglePosition, setTogglePosition] = useState<{ left: number; top: number } | null>(null);
   const dragState = useRef<{ pointerX: number; pointerY: number; left: number; top: number; currentLeft: number; currentTop: number; moved: boolean } | null>(null);
   const suppressToggleClick = useRef(false);
+  const welcomeToastTimer = useRef<number | null>(null);
   const send = useServerFn(sendContactMessage);
 
   useEffect(() => {
+    welcomeToastTimer.current = window.setTimeout(() => setWelcomeToastState("closing"), WELCOME_TOAST_DURATION_MS);
     let savedTheme: string | null = null;
     try {
       savedTheme = window.localStorage.getItem("theme");
@@ -110,6 +114,10 @@ function Index() {
     } catch {
       // Ignore invalid or unavailable position storage.
     }
+
+    return () => {
+      if (welcomeToastTimer.current !== null) window.clearTimeout(welcomeToastTimer.current);
+    };
   }, []);
 
   function toggleTheme() {
@@ -179,6 +187,11 @@ function Index() {
     toggleTheme();
   }
 
+  function dismissWelcomeToast() {
+    if (welcomeToastTimer.current !== null) window.clearTimeout(welcomeToastTimer.current);
+    setWelcomeToastState("closing");
+  }
+
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
@@ -207,6 +220,29 @@ function Index() {
           </nav>
         </div>
       </header>
+      {welcomeToastState !== "hidden" && (
+        <div
+          role="status"
+          aria-live="polite"
+          onAnimationEnd={(event) => {
+            if (welcomeToastState === "closing" && event.animationName === "welcome-toast-exit") {
+              setWelcomeToastState("hidden");
+            }
+          }}
+          className={`fixed left-4 right-4 top-20 z-[60] mx-auto flex w-fit items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 text-card-foreground shadow-lg sm:left-auto sm:right-6 sm:mx-0 ${welcomeToastState === "closing" ? "welcome-toast-exit" : "welcome-toast-enter"}`}
+        >
+          <span className={`welcome-wave ${welcomeToastState === "closing" ? "welcome-wave-stopped" : ""}`} aria-hidden="true">👋</span>
+          <span className="text-sm font-medium">Bienvenue dans mon univers</span>
+          <button
+            type="button"
+            onClick={dismissWelcomeToast}
+            aria-label="Fermer la notification"
+            className="ml-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <X aria-hidden="true" className="h-4 w-4" />
+          </button>
+        </div>
+      )}
       <button
         type="button"
         onClick={handleToggleClick}
@@ -225,7 +261,6 @@ function Index() {
 
       <section id="accueil" className="page-rail grid max-w-6xl items-center gap-12 pb-10 pt-4 md:grid-cols-2">
         <div>
-          <p className="font-medium text-brand">👋 Bienvenue dans mon univers</p>
           <h1 className="mt-6 text-5xl font-bold leading-tight md:text-6xl">
             Bonjour, je suis <span className="block text-brand">RASOLOFOSON Théophile</span>
           </h1>
