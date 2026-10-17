@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { sendContactMessage } from "@/lib/contact.functions";
 import {
   Briefcase, Code2, Database, Facebook, Github, Gitlab, Instagram, LayoutTemplate,
-  Linkedin, Mail, MapPin, MessageCircle, Mouse, Palette, Phone, ListChecks, Wrench,
+  GraduationCap, Linkedin, Mail, MapPin, MessageCircle, Moon, Palette, Phone, Sun, ListChecks, Wrench,
 } from "lucide-react";
 import portrait from "@/assets/portrait.jfif";
 import maritime from "@/assets/maritime.jpg";
@@ -62,6 +62,14 @@ const edu = [
 
 const socials = [Facebook, Instagram, MessageCircle, Linkedin, Gitlab, Github];
 
+function clampFloatingPosition(left: number, top: number, size = 40) {
+  const margin = 8;
+  return {
+    left: Math.max(margin, Math.min(left, window.innerWidth - size - margin)),
+    top: Math.max(margin, Math.min(top, window.innerHeight - size - margin)),
+  };
+}
+
 function Title({ t, sub, big }: { t: string; sub?: string; big?: boolean }) {
   return (
     <div className="page-rail mb-14 text-left">
@@ -74,7 +82,103 @@ function Title({ t, sub, big }: { t: string; sub?: string; big?: boolean }) {
 
 function Index() {
   const [status, setStatus] = useState<"idle" | "loading" | "ok" | "saved" | "error">("idle");
+  const [darkMode, setDarkMode] = useState(false);
+  const [togglePosition, setTogglePosition] = useState<{ left: number; top: number } | null>(null);
+  const dragState = useRef<{ pointerX: number; pointerY: number; left: number; top: number; currentLeft: number; currentTop: number; moved: boolean } | null>(null);
+  const suppressToggleClick = useRef(false);
   const send = useServerFn(sendContactMessage);
+
+  useEffect(() => {
+    let savedTheme: string | null = null;
+    try {
+      savedTheme = window.localStorage.getItem("theme");
+    } catch {
+      // Storage may be disabled; use the system preference instead.
+    }
+    const shouldUseDark = savedTheme ? savedTheme === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    setDarkMode(shouldUseDark);
+    document.documentElement.classList.toggle("dark", shouldUseDark);
+
+    try {
+      const savedPosition = window.localStorage.getItem("theme-toggle-position");
+      if (savedPosition) {
+        const parsed = JSON.parse(savedPosition) as { left?: unknown; top?: unknown };
+        if (typeof parsed.left === "number" && typeof parsed.top === "number") {
+          setTogglePosition(clampFloatingPosition(parsed.left, parsed.top));
+        }
+      }
+    } catch {
+      // Ignore invalid or unavailable position storage.
+    }
+  }, []);
+
+  function toggleTheme() {
+    const nextThemeIsDark = !darkMode;
+    setDarkMode(nextThemeIsDark);
+    document.documentElement.classList.toggle("dark", nextThemeIsDark);
+    try {
+      window.localStorage.setItem("theme", nextThemeIsDark ? "dark" : "light");
+    } catch {
+      // The current page still updates when storage is unavailable.
+    }
+  }
+
+  function startToggleDrag(event: React.PointerEvent<HTMLButtonElement>) {
+    if (event.button !== 0) return;
+    const bounds = event.currentTarget.getBoundingClientRect();
+    dragState.current = {
+      pointerX: event.clientX,
+      pointerY: event.clientY,
+      left: bounds.left,
+      top: bounds.top,
+      currentLeft: bounds.left,
+      currentTop: bounds.top,
+      moved: false,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function moveToggle(event: React.PointerEvent<HTMLButtonElement>) {
+    const drag = dragState.current;
+    if (!drag) return;
+
+    const deltaX = event.clientX - drag.pointerX;
+    const deltaY = event.clientY - drag.pointerY;
+    if (!drag.moved && Math.abs(deltaX) < 4 && Math.abs(deltaY) < 4) return;
+
+    drag.moved = true;
+    const position = clampFloatingPosition(drag.left + deltaX, drag.top + deltaY, event.currentTarget.offsetWidth);
+    drag.currentLeft = position.left;
+    drag.currentTop = position.top;
+    setTogglePosition(position);
+  }
+
+  function finishToggleDrag() {
+    const drag = dragState.current;
+    dragState.current = null;
+    if (!drag?.moved) return;
+
+    const position = { left: drag.currentLeft, top: drag.currentTop };
+    setTogglePosition(position);
+    suppressToggleClick.current = true;
+    window.setTimeout(() => {
+      suppressToggleClick.current = false;
+    }, 0);
+    try {
+      window.localStorage.setItem("theme-toggle-position", JSON.stringify(position));
+    } catch {
+      // The control remains movable when storage is unavailable.
+    }
+  }
+
+  function handleToggleClick() {
+    if (suppressToggleClick.current) {
+      suppressToggleClick.current = false;
+      return;
+    }
+    toggleTheme();
+  }
+
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
@@ -103,6 +207,21 @@ function Index() {
           </nav>
         </div>
       </header>
+      <button
+        type="button"
+        onClick={handleToggleClick}
+        onPointerDown={startToggleDrag}
+        onPointerMove={moveToggle}
+        onPointerUp={finishToggleDrag}
+        onPointerCancel={finishToggleDrag}
+        aria-label={`${darkMode ? "Activer le mode clair" : "Activer le mode sombre"}. Glisser pour déplacer.`}
+        aria-pressed={darkMode}
+        title={`${darkMode ? "Mode sombre" : "Mode clair"}. Glisser pour déplacer.`}
+        style={togglePosition ? { left: togglePosition.left, top: togglePosition.top, right: "auto", bottom: "auto" } : undefined}
+        className="fixed bottom-6 right-6 z-50 flex h-10 w-10 touch-none select-none cursor-grab items-center justify-center rounded-full border border-border bg-background text-foreground shadow-lg transition-colors hover:bg-muted active:cursor-grabbing focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        {darkMode ? <Sun aria-hidden="true" className="h-5 w-5" /> : <Moon aria-hidden="true" className="h-5 w-5" />}
+      </button>
 
       <section id="accueil" className="page-rail grid max-w-6xl items-center gap-12 pb-10 pt-4 md:grid-cols-2">
         <div>
@@ -126,11 +245,9 @@ function Index() {
           <div className="h-72 w-72 translate-x-4 overflow-hidden rounded-full border-4 border-brand-soft shadow-2xl md:h-[26rem] md:w-[26rem] md:translate-x-6">
             <img src={portrait} alt="RASOLOFOSON Théophile" className="h-full w-full scale-110 object-cover" />
           </div>
-          <div className="card-soft absolute -bottom-2 right-0 flex items-center gap-2 px-4 py-3 text-sm font-medium">🧑‍💻 Dev Full Stack</div>
+          <div className="card-soft absolute -bottom-2 right-0 flex items-center gap-2 px-4 py-3 text-sm font-medium">Dev Full Stack</div>
         </div>
       </section>
-      <div className="flex justify-center pb-6 text-muted-foreground"><Mouse className="h-8 w-8 animate-bounce" /></div>
-
       <section id="competences" className="bg-surface py-24">
         <Title t="Compétences techniques" sub="Technologies & outils que j'utilise au quotidien" big />
         <div className="page-rail grid max-w-7xl gap-8 md:grid-cols-3">
@@ -170,7 +287,7 @@ function Index() {
         <Title t="Projets et realisation" />
         <div className="page-rail grid max-w-7xl gap-8 md:grid-cols-3">
           {projects.map((p) => (
-            <article key={p.t} className="card-soft overflow-hidden transition hover:-translate-y-1">
+            <article key={p.t} className="card-soft dark:bg-card overflow-hidden transition hover:-translate-y-1">
               <img src={p.img} alt={p.t} className="h-48 w-full object-cover" />
               <div className="p-6">
                 <h3 className="text-xl font-medium">{p.t}</h3>
@@ -183,21 +300,25 @@ function Index() {
       </section>
 
       <section id="education" className="py-24">
-        <Title t="Éducation" sub="Mon parcours académique" big />
-        <div className="page-rail relative max-w-4xl space-y-10 border-l-2 border-brand-soft pl-10">
-          {edu.map(([t, s, d, y]) => (
-            <div key={t} className="relative">
-              <span className="absolute -left-[49px] top-4 h-4 w-4 rounded-full bg-brand" />
-              <div className="card-soft p-7">
-                <div className="flex items-start justify-between gap-4">
-                  <h3 className="text-xl font-medium">{t}</h3>
-                  <span className="rounded-full bg-brand-soft px-3 py-1 text-xs font-medium text-brand">{y}</span>
+        <Title t="Éducation" />
+        <div className="page-rail relative max-w-7xl">
+          <div className="absolute left-1/2 top-0 hidden h-full w-px bg-brand-soft md:block" />
+          <div className="space-y-12">
+            {edu.map(([t, s, d, y], i) => (
+              <div key={t} className={`relative md:w-1/2 ${i % 2 ? "md:ml-auto md:pl-0" : "md:pr-0"}`}>
+                <span className={`absolute top-1/2 hidden h-2.5 w-2.5 rounded-full bg-brand md:block ${i % 2 ? "-left-[5px]" : "-right-[5px]"}`} />
+                <div className="card-soft flex gap-5 p-7">
+                  <div className="icon-tile shrink-0"><GraduationCap className="h-5 w-5" /></div>
+                  <div>
+                    <span className="rounded-full bg-brand-soft px-3 py-1 text-sm font-medium text-brand">{y}</span>
+                    <h3 className="mt-3 text-xl font-medium">{t}</h3>
+                    <p className="font-medium text-brand">{s}</p>
+                    <p className="mt-2 text-muted-foreground">{d}</p>
+                  </div>
                 </div>
-                <p className="mt-1 font-medium text-brand">{s}</p>
-                <p className="mt-3 text-muted-foreground">{d}</p>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
@@ -210,8 +331,8 @@ function Index() {
             <p className="font-medium text-brand">Développeur Logiciel</p>
             <p className="mt-4 text-muted-foreground">Disponible pour vos projets web, mobile et systèmes.</p>
             <ul className="mt-3 space-y-3 text-sm">
-              <li className="flex items-center gap-3"><Phone className="h-5 w-5" /> +261 32 64 541 67</li>
-              <li className="flex items-center gap-3"><Mail className="h-5 w-5" /> <a href="mailto:michaelnadrasana@gmail.com">Email professionnel</a></li>
+              <li className="flex items-center gap-3"><Phone className="h-5 w-5" /> +261 14 348 63</li>
+              <li className="flex items-center gap-3"><Mail className="h-5 w-5" /> <a href="mailto:rasolofosontheophile43@gmail.com">Email professionnel</a></li>
               <li className="flex items-center gap-3"><MessageCircle className="h-5 w-5" /> WhatsApp direct</li>
             </ul>
             <p className="mt-8 font-medium">Me suivre</p>
@@ -252,13 +373,13 @@ function Index() {
           <div>
             <h4 className="text-xl font-medium">Contact</h4>
             <ul className="mt-4 space-y-3 text-sm">
-              <li className="flex items-center gap-3"><Phone className="h-5 w-5" /> +261 32 64 54 167</li>
-              <li className="flex items-center gap-3"><Mail className="h-5 w-5" /> michaelnadrasana@gmail.com</li>
+              <li className="flex items-center gap-3"><Phone className="h-5 w-5" /> +261 14 348 63</li>
+              <li className="flex items-center gap-3"><Mail className="h-5 w-5" /> rasolofosontheophile43@gmail.com</li>
               <li className="flex items-center gap-3"><MapPin className="h-5 w-5" /> Antsirabe, Madagascar</li>
             </ul>
           </div>
         </div>
-        <p className="page-rail mt-12 max-w-6xl border-t border-footer-foreground/10 pt-6 text-center text-sm opacity-50">© 2026 RASOLOFOSON Théophile</p>
+        <p className="page-rail mt-12 max-w-6xl border-t border-footer-foreground/10 pt-6 text-center text-sm opacity-50">© 2023 RASOLOFOSON Théophile</p>
       </footer>
     </div>
   );
