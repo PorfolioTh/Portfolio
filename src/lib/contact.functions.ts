@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 const schema = z.object({
@@ -12,14 +13,28 @@ const schema = z.object({
 export const sendContactMessage = createServerFn({ method: "POST" })
   .validator((input: unknown) => schema.parse(input))
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("contact_messages").insert({
+    const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
+    const db = createClient(process.env["SUPABASE_URL"]!, key, {
+      auth: { persistSession: false },
+      global: {
+        fetch: (input, init) => {
+          const h = new Headers(init?.headers);
+          if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
+          h.set("apikey", key);
+          return fetch(input, { ...init, headers: h });
+        },
+      },
+    });
+    const { error } = await db.from("contact_messages").insert({
       name: data.name,
       phone: data.phone || null,
       email: data.email,
       subject: data.subject || null,
       message: data.message,
     });
-    if (error) { console.error("contact insert", error); } if (error) throw new Error("Impossible d'enregistrer le message");
+    if (error) {
+      console.error("contact insert", error.code);
+      throw new Error("Impossible d'enregistrer le message");
+    }
     return { ok: true };
   });
