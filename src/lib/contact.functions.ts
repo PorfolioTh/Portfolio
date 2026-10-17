@@ -10,7 +10,7 @@ const schema = z.object({
 });
 
 export const sendContactMessage = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => schema.parse(input))
+  .validator((input: unknown) => schema.parse(input))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("contact_messages").insert({
@@ -20,6 +20,6 @@ export const sendContactMessage = createServerFn({ method: "POST" })
       subject: data.subject || null,
       message: data.message,
     });
-    if (error) throw new Error("Impossible d'enregistrer le message");
+    if (error) { console.error("contact insert", error); } if (error) throw new Error("Impossible d'enregistrer le message");
     return { ok: true };
   });
