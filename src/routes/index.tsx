@@ -12,6 +12,7 @@ import maritime from "@/assets/maritime.jpg";
 import aesna from "@/assets/aesna.jpg";
 import vanilla from "@/assets/vanilla.jpg";
 import handshake from "@/assets/handshake.jpg";
+import cv from "@/assets/CV/CV - ThéophileRas.pdf";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -364,7 +365,7 @@ function Index() {
           <p className="mt-6 flex items-center gap-1 font-medium text-brand"><MapPin className="h-5 w-5" /> {copy.hero.location}</p>
           <div className="mt-8 flex gap-4">
             <a href="#contact" className="rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground hover:opacity-90">{copy.hero.contact}</a>
-            <a href="#" className="rounded-lg border border-foreground px-6 py-3 font-medium hover:bg-muted">{copy.hero.download}</a>
+            <a href={cv} download="CV-Theophile-Ras.pdf" className="rounded-lg border border-foreground px-6 py-3 font-medium hover:bg-muted">{copy.hero.download}</a>
           </div>
         </div>
         <div className="relative mx-auto xl:translate-x-16">
