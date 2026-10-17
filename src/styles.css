@@ -51,6 +51,12 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --color-brand: var(--brand);
+  --color-brand-soft: var(--brand-soft);
+  --color-surface: var(--surface);
+  --color-footer: var(--footer);
+  --color-footer-foreground: var(--footer-foreground);
+  --font-sans: "Ubuntu", system-ui, sans-serif;
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -62,15 +68,20 @@
 }
 
 :root {
-  --radius: 0.625rem;
+  --radius: 0.75rem;
   --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
+  --foreground: oklch(0.32 0.04 255);
+  --brand: oklch(0.7 0.14 158);
+  --brand-soft: oklch(0.95 0.035 160);
+  --surface: oklch(0.975 0 0);
+  --footer: oklch(0.26 0.04 262);
+  --footer-foreground: oklch(0.96 0.005 250);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
+  --primary: oklch(0.7 0.14 158);
+  --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.968 0.007 247.896);
   --secondary-foreground: oklch(0.208 0.042 265.755);
   --muted: oklch(0.968 0.007 247.896);
@@ -137,8 +148,18 @@
     border-color: var(--color-border);
   }
 
+  html { scroll-behavior: smooth; }
   body {
+    font-family: var(--font-sans);
     background-color: var(--color-background);
     color: var(--color-foreground);
   }
+}
+
+@layer components {
+  .chip { @apply rounded-full bg-muted px-3 py-1 text-sm text-muted-foreground; }
+  .card-soft { @apply rounded-2xl bg-card shadow-[0_8px_30px_-12px_oklch(0_0_0/0.18)]; }
+  .section-bar { @apply mx-auto mt-4 h-1 w-24 rounded-full bg-brand; }
+  .icon-tile { @apply flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand; }
+  .field { @apply mt-2 w-full rounded-lg border border-foreground/70 bg-background px-3 py-3 outline-none focus:border-brand; }
 }
