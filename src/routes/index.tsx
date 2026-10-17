@@ -84,7 +84,8 @@ function Index() {
       await send({ data: Object.fromEntries(f) });
       form.reset();
       setStatus("ok");
-    } catch {
+    } catch (err) {
+      console.error(err);
       setStatus("error");
     }
   }
