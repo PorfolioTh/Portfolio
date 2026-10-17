@@ -1,24 +1,13 @@
-# Portfolio Design Match
+# Portfolio
 
-creer le portfolio le memes  design au pdf le maquette
+## Formulaire de contact
 
-This project was built with [Lovable](https://lovable.dev).
+Les messages sont enregistrés dans la table Supabase `contact_messages`, puis une notification est envoyée avec l'API Resend. Configurez les variables suivantes dans l'environnement serveur (localement dans `.env`, et dans les variables d'environnement de l'hébergeur) :
 
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/f41eab35-2009-46ce-b067-88b2feebb0f9).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+```env
+RESEND_API_KEY=re_...
+CONTACT_FROM_EMAIL=Portfolio <contact@votre-domaine.com>
+CONTACT_TO_EMAIL=michaelnadrasana@gmail.com
 ```
+
+`RESEND_API_KEY` et `CONTACT_FROM_EMAIL` sont requis. L'adresse d'expédition doit être vérifiée dans Resend. `CONTACT_TO_EMAIL` est facultative et vaut `michaelnadrasana@gmail.com` par défaut. Les secrets restent côté serveur. Si Resend est indisponible ou mal configuré, le message reste enregistré dans Supabase et le formulaire l'indique.

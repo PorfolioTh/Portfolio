@@ -15,9 +15,9 @@ import handshake from "@/assets/handshake.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "NANDRASANA Michaël — Développeur logiciel" },
-      { name: "description", content: "Portfolio de NANDRASANA Michaël, développeur Vue, React et Node.js à Antananarivo." },
-      { property: "og:title", content: "NANDRASANA Michaël — Développeur logiciel" },
+      { title: "RASOLOFOSON Theophile — Développeur logiciel" },
+      { name: "description", content: "Portfolio de RASOLOFOSON Theophile, développeur Vue, React et Node.js à Antananarivo." },
+      { property: "og:title", content: "RASOLOFOSON Theophile — Développeur logiciel" },
       { property: "og:description", content: "Applications modernes, rapides et scalables en Vue, React et Node.js." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -64,7 +64,7 @@ const socials = [Facebook, Instagram, MessageCircle, Linkedin, Gitlab, Github];
 
 function Title({ t, sub, big }: { t: string; sub?: string; big?: boolean }) {
   return (
-    <div className="mb-14 text-center">
+    <div className="page-rail mb-14 text-left">
       <h2 className={big ? "text-4xl font-bold md:text-5xl" : "text-3xl font-medium md:text-4xl"}>{t}</h2>
       {sub && <p className="mt-2 text-muted-foreground">{sub}</p>}
       <div className="section-bar" />
@@ -73,7 +73,7 @@ function Title({ t, sub, big }: { t: string; sub?: string; big?: boolean }) {
 }
 
 function Index() {
-  const [status, setStatus] = useState<"idle" | "loading" | "ok" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "loading" | "ok" | "saved" | "error">("idle");
   const send = useServerFn(sendContactMessage);
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -81,9 +81,9 @@ function Index() {
     const f = new FormData(form);
     setStatus("loading");
     try {
-      await send({ data: Object.fromEntries(f) });
+      const result = await send({ data: Object.fromEntries(f) });
       form.reset();
-      setStatus("ok");
+      setStatus(result.notificationSent ? "ok" : "saved");
     } catch {
       setStatus("error");
     }
@@ -92,23 +92,23 @@ function Index() {
     <div className="min-h-screen">
       <header className="sticky top-0 z-20 bg-background/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <a href="#accueil" className="flex items-center gap-3 text-lg font-medium">
+          <a href="#accueil" className="-ml-6 flex items-center gap-3 text-lg font-medium xl:-ml-20">
             <img src={portrait} alt="" className="h-11 w-11 rounded-full border object-cover" />
-            Michaël
+            Theophile
           </a>
-          <nav className="hidden gap-8 text-sm font-medium md:flex">
+          <nav className="hidden gap-8 text-sm font-medium md:flex lg:gap-10">
             {nav.map(([l, id], i) => (
-              <a key={id} href={`#${id}`} className={i === 0 ? "border-b-2 border-brand pb-1 text-brand" : "hover:text-brand"}>{l}</a>
+              <a key={id} href={`#${id}`} className={`${i === 0 ? "border-b-2 border-brand pb-1 text-brand" : "hover:text-brand"} ${id === "contact" ? "xl:-mr-16" : ""}`}>{l}</a>
             ))}
           </nav>
         </div>
       </header>
 
-      <section id="accueil" className="mx-auto grid max-w-6xl items-center gap-12 px-6 pb-10 pt-4 md:grid-cols-2">
+      <section id="accueil" className="page-rail grid max-w-6xl items-center gap-12 pb-10 pt-4 md:grid-cols-2">
         <div>
           <p className="font-medium text-brand">👋 Bienvenue dans mon univers</p>
           <h1 className="mt-6 text-5xl font-bold leading-tight md:text-6xl">
-            Bonjour, je suis <span className="block text-brand">NANDRASANA Michaël</span>
+            Bonjour, je suis <span className="block text-brand">RASOLOFOSON Theophile</span>
           </h1>
           <p className="mt-6 text-lg text-muted-foreground">
             Développeur logiciel spécialisé en <b className="text-foreground">Vue, React, Node.js</b>. Je transforme des idées en applications modernes, rapides et scalables.
@@ -122,18 +122,18 @@ function Index() {
             <a href="#" className="rounded-lg border border-foreground px-6 py-3 font-medium hover:bg-muted">Télécharger CV</a>
           </div>
         </div>
-        <div className="relative mx-auto">
-          <div className="h-72 w-72 overflow-hidden rounded-full border-4 border-brand-soft shadow-2xl md:h-[26rem] md:w-[26rem]">
-            <img src={portrait} alt="NANDRASANA Michaël" className="h-full w-full scale-110 object-cover" />
+        <div className="relative mx-auto xl:translate-x-12">
+          <div className="h-72 w-72 translate-x-4 overflow-hidden rounded-full border-4 border-brand-soft shadow-2xl md:h-[26rem] md:w-[26rem] md:translate-x-6">
+            <img src={portrait} alt="RASOLOFOSON Theophile" className="h-full w-full scale-110 object-cover" />
           </div>
           <div className="card-soft absolute -bottom-2 right-0 flex items-center gap-2 px-4 py-3 text-sm font-medium">🧑‍💻 Dev Full Stack</div>
         </div>
       </section>
       <div className="flex justify-center pb-6 text-muted-foreground"><Mouse className="h-8 w-8 animate-bounce" /></div>
 
-      <section id="competences" className="bg-surface px-6 py-24">
+      <section id="competences" className="bg-surface py-24">
         <Title t="Compétences techniques" sub="Technologies & outils que j'utilise au quotidien" big />
-        <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-3">
+        <div className="page-rail grid max-w-5xl gap-6 md:grid-cols-3">
           {skills.map(({ t, i: I, s }) => (
             <div key={t} className="card-soft p-7 transition hover:-translate-y-1">
               <div className="flex items-center gap-4"><div className="icon-tile"><I className="h-5 w-5" /></div><h3 className="text-lg font-medium">{t}</h3></div>
@@ -143,9 +143,9 @@ function Index() {
         </div>
       </section>
 
-      <section id="experiences" className="px-6 py-24">
+      <section id="experiences" className="py-24">
         <Title t="Expériences Professionnelles" />
-        <div className="relative mx-auto max-w-4xl">
+        <div className="page-rail relative max-w-4xl">
           <div className="absolute left-1/2 top-0 hidden h-full w-px bg-brand-soft md:block" />
           <div className="space-y-10">
             {xp.map(([y, c, r, d], i) => (
@@ -166,9 +166,9 @@ function Index() {
         </div>
       </section>
 
-      <section id="projets" className="bg-surface px-6 py-24">
+      <section id="projets" className="bg-surface py-24">
         <Title t="Projets et realisation" />
-        <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3">
+        <div className="page-rail grid max-w-6xl gap-6 md:grid-cols-3">
           {projects.map((p) => (
             <article key={p.t} className="card-soft overflow-hidden transition hover:-translate-y-1">
               <img src={p.img} alt={p.t} className="h-48 w-full object-cover" />
@@ -182,9 +182,9 @@ function Index() {
         </div>
       </section>
 
-      <section id="education" className="px-6 py-24">
+      <section id="education" className="py-24">
         <Title t="Éducation" sub="Mon parcours académique" big />
-        <div className="relative mx-auto max-w-4xl space-y-10 border-l-2 border-brand-soft pl-10">
+        <div className="page-rail relative max-w-4xl space-y-10 border-l-2 border-brand-soft pl-10">
           {edu.map(([t, s, d, y]) => (
             <div key={t} className="relative">
               <span className="absolute -left-[49px] top-4 h-4 w-4 rounded-full bg-brand" />
@@ -201,12 +201,12 @@ function Index() {
         </div>
       </section>
 
-      <section id="contact" className="bg-surface px-6 py-24">
+      <section id="contact" className="bg-surface py-24">
         <Title t="Contact" sub="Restons en contact" big />
-        <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-2">
+        <div className="page-rail grid max-w-6xl gap-10 md:grid-cols-2">
           <div className="card-soft p-9">
             <img src={handshake} alt="" className="h-32 w-32 rounded-full object-cover" />
-            <h3 className="mt-5 text-2xl font-bold">NANDRASANA Michaël</h3>
+            <h3 className="mt-5 text-2xl font-bold">RASOLOFOSON Theophile</h3>
             <p className="font-medium text-brand">Développeur Logiciel</p>
             <p className="mt-4 text-muted-foreground">Disponible pour vos projets web, mobile et systèmes.</p>
             <ul className="mt-3 space-y-3 text-sm">
@@ -229,13 +229,14 @@ function Index() {
             <label className="block text-sm font-medium">Message<textarea name="message" required maxLength={5000} rows={6} className="field" /></label>
             <button disabled={status === "loading"} className="w-full disabled:opacity-60 rounded-lg bg-primary py-3 font-medium text-primary-foreground hover:opacity-90">{status === "loading" ? "Envoi..." : "Envoyer le message"}</button>
             {status === "ok" && <p className="text-center text-sm text-brand">Merci ! Votre message a bien été envoyé.</p>}
+            {status === "saved" && <p className="text-center text-sm text-destructive">Votre message est enregistré, mais l'e-mail de notification n'a pas pu être envoyé.</p>}
             {status === "error" && <p className="text-center text-sm text-destructive">Une erreur est survenue, veuillez réessayer.</p>}
           </form>
         </div>
       </section>
 
-      <footer className="bg-footer px-6 py-14 text-footer-foreground">
-        <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-3">
+      <footer className="bg-footer py-14 text-footer-foreground">
+        <div className="page-rail grid max-w-6xl gap-10 md:grid-cols-3">
           <div>
             <h4 className="text-xl font-medium">À propos</h4>
             <p className="mt-4 text-sm opacity-80">Passionné par le développement logiciel et la création d'interfaces modernes. J'aime transformer des idées en produits concrets et utiles.</p>
@@ -257,7 +258,7 @@ function Index() {
             </ul>
           </div>
         </div>
-        <p className="mx-auto mt-12 max-w-6xl border-t border-footer-foreground/10 pt-6 text-center text-sm opacity-50">© 2026 NANDRASANA Michaël</p>
+        <p className="page-rail mt-12 max-w-6xl border-t border-footer-foreground/10 pt-6 text-center text-sm opacity-50">© 2026 RASOLOFOSON Theophile</p>
       </footer>
     </div>
   );

@@ -148,7 +148,10 @@
     border-color: var(--color-border);
   }
 
-  html { scroll-behavior: smooth; }
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     font-family: var(--font-sans);
     background-color: var(--color-background);
@@ -157,9 +160,34 @@
 }
 
 @layer components {
-  .chip { @apply rounded-full bg-muted px-3 py-1 text-sm text-muted-foreground; }
-  .card-soft { @apply rounded-2xl bg-card shadow-[0_8px_30px_-12px_oklch(0_0_0/0.18)]; }
-  .section-bar { @apply mx-auto mt-4 h-1 w-24 rounded-full bg-brand; }
-  .icon-tile { @apply flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand; }
-  .field { @apply mt-2 w-full rounded-lg border border-foreground/70 bg-background px-3 py-3 outline-none focus:border-brand; }
+  .chip {
+    @apply rounded-full bg-muted px-3 py-1 text-sm text-muted-foreground;
+  }
+
+  .card-soft {
+    @apply rounded-2xl bg-card shadow-[0_8px_30px_-12px_oklch(0_0_0/0.18)];
+  }
+
+  .page-rail {
+    margin-left: max(0px, calc((100% - 72rem) / 2));
+    margin-right: auto;
+  }
+
+  .section-bar {
+    @apply mx-0 mt-4 h-1 w-24 rounded-full bg-brand;
+  }
+
+  .icon-tile {
+    @apply flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-brand;
+  }
+
+  .field {
+    @apply mt-2 w-full rounded-lg border border-foreground/70 bg-background px-3 py-3 outline-none focus:border-brand;
+  }
+}
+
+@media (min-width: 80rem) {
+  .page-rail {
+    margin-left: calc((100% - 72rem) / 2 - 3.5rem);
+  }
 }

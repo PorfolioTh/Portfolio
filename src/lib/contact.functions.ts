@@ -36,5 +36,43 @@ export const sendContactMessage = createServerFn({ method: "POST" })
       console.error("contact insert", error.code);
       throw new Error("Impossible d'enregistrer le message");
     }
-    return { ok: true };
+
+    const apiKey = process.env["RESEND_API_KEY"];
+    const from = process.env["CONTACT_FROM_EMAIL"];
+    const to = process.env["CONTACT_TO_EMAIL"] || "michaelnadrasana@gmail.com";
+    let notificationSent = false;
+
+    if (apiKey && from) {
+      try {
+        const response = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from,
+            to: [to],
+            reply_to: data.email,
+            subject: `[Portfolio] ${data.subject.replace(/[\r\n]+/g, " ").trim() || "Nouveau message"}`,
+            text: [
+              `Nom : ${data.name}`,
+              `E-mail : ${data.email}`,
+              `Téléphone : ${data.phone || "Non renseigné"}`,
+              `Sujet : ${data.subject || "Non renseigné"}`,
+              "",
+              data.message,
+            ].join("\n"),
+          }),
+        });
+        notificationSent = response.ok;
+        if (!response.ok) console.error("contact email", response.status);
+      } catch {
+        console.error("contact email request failed");
+      }
+    } else {
+      console.error("contact email configuration missing");
+    }
+
+    return { ok: true, notificationSent };
   });
