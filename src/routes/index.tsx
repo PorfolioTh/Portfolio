@@ -178,6 +178,7 @@ function Title({ t, sub, big }: { t: string; sub?: string; big?: boolean }) {
 
 function Index() {
   const [language, setLanguage] = useState<Locale>("fr");
+  const [activeSection, setActiveSection] = useState("accueil");
   const [status, setStatus] = useState<"idle" | "loading" | "ok" | "saved" | "error">("idle");
   const [darkMode, setDarkMode] = useState(false);
   const [welcomeToastState, setWelcomeToastState] = useState<"visible" | "closing" | "hidden">("visible");
@@ -187,6 +188,26 @@ function Index() {
   const welcomeToastTimer = useRef<number | null>(null);
   const send = useServerFn(sendContactMessage);
   const copy = portfolioCopy[language];
+
+  useEffect(() => {
+    if (!("IntersectionObserver" in window)) return;
+
+    const sectionIds = ["accueil", "competences", "experiences", "projets", "education", "contact"];
+    const sections = sectionIds
+      .map((id) => document.getElementById(id))
+      .filter((section): section is HTMLElement => section !== null);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visibleSection = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visibleSection) setActiveSection(visibleSection.target.id);
+      },
+      { rootMargin: "-20% 0px -65% 0px", threshold: [0, 0.1, 0.25, 0.5, 0.75, 1] },
+    );
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     welcomeToastTimer.current = window.setTimeout(() => setWelcomeToastState("closing"), WELCOME_TOAST_DURATION_MS);
@@ -331,7 +352,7 @@ function Index() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <a href="#accueil" className="-ml-6 flex items-center gap-3 text-lg font-medium xl:-ml-20">
             <img src={portrait} alt="" className="h-11 w-11 rounded-full border object-cover" />
-            Théophile
+            <span className="name-typeface">Théophile</span>
           </a>
           <nav className="hidden gap-8 text-sm font-medium md:flex lg:gap-10">
             {[
@@ -341,8 +362,16 @@ function Index() {
               [copy.navigation.projects, "projets"],
               [copy.navigation.education, "education"],
               [copy.navigation.contact, "contact"],
-            ].map(([l, id], i) => (
-              <a key={id} href={`#${id}`} className={`${i === 0 ? "border-b-2 border-brand pb-1 text-brand" : "hover:text-brand"} ${id === "contact" ? "xl:-mr-16" : ""}`}>{l}</a>
+            ].map(([l, id]) => (
+              <a
+                key={id}
+                href={`#${id}`}
+                aria-current={activeSection === id ? "location" : undefined}
+                onClick={() => setActiveSection(id)}
+                className={`border-b-2 pb-1 transition-colors ${activeSection === id ? "border-brand text-brand" : "border-transparent hover:border-brand hover:text-brand"} ${id === "contact" ? "xl:-mr-16" : ""}`}
+              >
+                {l}
+              </a>
             ))}
           </nav>
         </div>
@@ -390,7 +419,7 @@ function Index() {
       <section id="accueil" className="page-rail grid max-w-6xl scroll-mt-28 items-center gap-12 pb-10 pt-4 md:grid-cols-2">
         <div>
           <h1 className="mt-6 text-5xl font-bold leading-tight md:text-6xl">
-            {copy.hero.greeting} <span className="block text-brand">RASOLOFOSON Théophile</span>
+            {copy.hero.greeting} <span className="name-typeface block text-brand">RASOLOFOSON Théophile</span>
           </h1>
           <p className="mt-6 text-lg text-muted-foreground">{copy.hero.description}</p>
           <div className="mt-6 flex flex-wrap gap-2">
@@ -489,7 +518,7 @@ function Index() {
         <div className="page-rail grid max-w-6xl gap-10 md:grid-cols-2">
           <div className="card-soft p-9">
             <img src={handshake} alt="" className="h-32 w-32 rounded-full object-cover" />
-            <h3 className="mt-5 text-2xl font-bold">RASOLOFOSON Théophile</h3>
+            <h3 className="name-typeface mt-5 text-2xl font-bold">RASOLOFOSON Théophile</h3>
             <p className="font-medium text-brand">{copy.contact.role}</p>
             <p className="mt-4 text-muted-foreground">{copy.contact.availability}</p>
             <ul className="mt-3 space-y-3 text-sm">
