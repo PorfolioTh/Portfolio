@@ -35,8 +35,6 @@ const orbitIcons = Object.entries(import.meta.glob<string>("@/assets/icons/*.jpg
   .sort(([first], [second]) => first.localeCompare(second));
 const WELCOME_TOAST_DURATION_MS = 8000;
 
-type FloatingPosition = { left: number; top: number };
-
 function ProfileOrbit({ portraitAlt }: { portraitAlt: string }) {
   const rings = [0, 1, 2].map((ringIndex) =>
     orbitIcons
@@ -69,78 +67,8 @@ function ProfileOrbit({ portraitAlt }: { portraitAlt: string }) {
   );
 }
 
-function clampFloatingPosition(left: number, top: number, width = 40, height = width) {
-  const margin = 8;
-  return {
-    left: Math.max(margin, Math.min(left, window.innerWidth - width - margin)),
-    top: Math.max(margin, Math.min(top, window.innerHeight - height - margin)),
-  };
-}
-
-function FloatingLanguageSelector({ language, labels, dragLabel, onChange }: { language: Locale; labels: { currentFrench: string; currentEnglish: string; switchToEnglish: string; switchToFrench: string }; dragLabel: string; onChange: (language: Locale) => void }) {
-  const [position, setPosition] = useState<FloatingPosition | null>(null);
-  const dragState = useRef<{ pointerX: number; pointerY: number; left: number; top: number; currentLeft: number; currentTop: number; moved: boolean } | null>(null);
-  const suppressClick = useRef(false);
-
-  useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem("language-selector-position");
-      if (saved) {
-        const parsed = JSON.parse(saved) as { left?: unknown; top?: unknown };
-        if (typeof parsed.left === "number" && typeof parsed.top === "number") {
-          setPosition(clampFloatingPosition(parsed.left, parsed.top, 48, 40));
-        }
-      }
-    } catch {
-      // Ignore invalid or unavailable position storage.
-    }
-
-    const clampAfterResize = () => setPosition((current) => current ? clampFloatingPosition(current.left, current.top, 48, 40) : current);
-    window.addEventListener("resize", clampAfterResize);
-    return () => window.removeEventListener("resize", clampAfterResize);
-  }, []);
-
-  function startDrag(event: React.PointerEvent<HTMLButtonElement>) {
-    if (event.button !== 0) return;
-    const bounds = event.currentTarget.getBoundingClientRect();
-    dragState.current = { pointerX: event.clientX, pointerY: event.clientY, left: bounds.left, top: bounds.top, currentLeft: bounds.left, currentTop: bounds.top, moved: false };
-    const captureTarget = event.target instanceof HTMLElement ? event.target : event.currentTarget;
-    captureTarget.setPointerCapture(event.pointerId);
-  }
-
-  function moveDrag(event: React.PointerEvent<HTMLButtonElement>) {
-    const drag = dragState.current;
-    if (!drag) return;
-    const deltaX = event.clientX - drag.pointerX;
-    const deltaY = event.clientY - drag.pointerY;
-    if (!drag.moved && Math.abs(deltaX) < 4 && Math.abs(deltaY) < 4) return;
-    drag.moved = true;
-    const next = clampFloatingPosition(drag.left + deltaX, drag.top + deltaY, event.currentTarget.offsetWidth, event.currentTarget.offsetHeight);
-    drag.currentLeft = next.left;
-    drag.currentTop = next.top;
-    setPosition(next);
-  }
-
-  function endDrag() {
-    const drag = dragState.current;
-    dragState.current = null;
-    if (!drag?.moved) return;
-    const next = { left: drag.currentLeft, top: drag.currentTop };
-    setPosition(next);
-    suppressClick.current = true;
-    window.setTimeout(() => { suppressClick.current = false; }, 0);
-    try {
-      window.localStorage.setItem("language-selector-position", JSON.stringify(next));
-    } catch {
-      // The selector remains movable when storage is unavailable.
-    }
-  }
-
+function FloatingLanguageSelector({ language, labels, onChange }: { language: Locale; labels: { currentFrench: string; currentEnglish: string; switchToEnglish: string; switchToFrench: string }; onChange: (language: Locale) => void }) {
   function toggleLanguage() {
-    if (suppressClick.current) {
-      suppressClick.current = false;
-      return;
-    }
     onChange(language === "fr" ? "en" : "fr");
   }
 
@@ -151,15 +79,10 @@ function FloatingLanguageSelector({ language, labels, dragLabel, onChange }: { l
     <button
       type="button"
       onClick={toggleLanguage}
-      onPointerDown={startDrag}
-      onPointerMove={moveDrag}
-      onPointerUp={endDrag}
-      onPointerCancel={endDrag}
-      aria-label={`${currentLabel}. ${nextLabel}. ${dragLabel}.`}
+      aria-label={`${currentLabel}. ${nextLabel}.`}
       aria-pressed={language === "en"}
-      title={`${currentLabel}. ${nextLabel}. ${dragLabel}.`}
-      style={position ? { left: position.left, top: position.top, right: "auto", bottom: "auto" } : undefined}
-      className="fixed bottom-20 right-6 z-50 flex h-10 w-12 touch-none select-none cursor-grab items-center justify-center rounded-full border border-border bg-background text-xs font-bold text-foreground shadow-lg transition-colors hover:bg-muted active:cursor-grabbing focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      title={`${currentLabel}. ${nextLabel}.`}
+      className="fixed bottom-[3.75rem] right-4 z-50 flex h-10 w-12 items-center justify-center rounded-full border border-border bg-background text-xs font-bold text-foreground shadow-lg transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       {language.toUpperCase()}
     </button>
@@ -182,9 +105,6 @@ function Index() {
   const [status, setStatus] = useState<"idle" | "loading" | "ok" | "saved" | "error">("idle");
   const [darkMode, setDarkMode] = useState(false);
   const [welcomeToastState, setWelcomeToastState] = useState<"visible" | "closing" | "hidden">("visible");
-  const [togglePosition, setTogglePosition] = useState<{ left: number; top: number } | null>(null);
-  const dragState = useRef<{ pointerX: number; pointerY: number; left: number; top: number; currentLeft: number; currentTop: number; moved: boolean } | null>(null);
-  const suppressToggleClick = useRef(false);
   const welcomeToastTimer = useRef<number | null>(null);
   const send = useServerFn(sendContactMessage);
   const copy = portfolioCopy[language];
@@ -227,18 +147,6 @@ function Index() {
     setDarkMode(shouldUseDark);
     document.documentElement.classList.toggle("dark", shouldUseDark);
 
-    try {
-      const savedPosition = window.localStorage.getItem("theme-toggle-position");
-      if (savedPosition) {
-        const parsed = JSON.parse(savedPosition) as { left?: unknown; top?: unknown };
-        if (typeof parsed.left === "number" && typeof parsed.top === "number") {
-          setTogglePosition(clampFloatingPosition(parsed.left, parsed.top));
-        }
-      }
-    } catch {
-      // Ignore invalid or unavailable position storage.
-    }
-
     return () => {
       if (welcomeToastTimer.current !== null) window.clearTimeout(welcomeToastTimer.current);
     };
@@ -270,62 +178,6 @@ function Index() {
     } catch {
       // The current page still updates when storage is unavailable.
     }
-  }
-
-  function startToggleDrag(event: React.PointerEvent<HTMLButtonElement>) {
-    if (event.button !== 0) return;
-    const bounds = event.currentTarget.getBoundingClientRect();
-    dragState.current = {
-      pointerX: event.clientX,
-      pointerY: event.clientY,
-      left: bounds.left,
-      top: bounds.top,
-      currentLeft: bounds.left,
-      currentTop: bounds.top,
-      moved: false,
-    };
-    event.currentTarget.setPointerCapture(event.pointerId);
-  }
-
-  function moveToggle(event: React.PointerEvent<HTMLButtonElement>) {
-    const drag = dragState.current;
-    if (!drag) return;
-
-    const deltaX = event.clientX - drag.pointerX;
-    const deltaY = event.clientY - drag.pointerY;
-    if (!drag.moved && Math.abs(deltaX) < 4 && Math.abs(deltaY) < 4) return;
-
-    drag.moved = true;
-    const position = clampFloatingPosition(drag.left + deltaX, drag.top + deltaY, event.currentTarget.offsetWidth);
-    drag.currentLeft = position.left;
-    drag.currentTop = position.top;
-    setTogglePosition(position);
-  }
-
-  function finishToggleDrag() {
-    const drag = dragState.current;
-    dragState.current = null;
-    if (!drag?.moved) return;
-
-    const position = { left: drag.currentLeft, top: drag.currentTop };
-    setTogglePosition(position);
-    suppressToggleClick.current = true;
-    window.setTimeout(() => {
-      suppressToggleClick.current = false;
-    }, 0);
-    try {
-      window.localStorage.setItem("theme-toggle-position", JSON.stringify(position));
-    } catch {
-      // The control remains movable when storage is unavailable.
-    }
-  }
-
-  function handleToggleClick() {
-    if (suppressToggleClick.current) {
-      suppressToggleClick.current = false;
-      return;
-    }
-    toggleTheme();
   }
 
   function dismissWelcomeToast() {
@@ -376,7 +228,7 @@ function Index() {
           </nav>
         </div>
       </header>
-      <FloatingLanguageSelector language={language} onChange={changeLanguage} labels={copy.languageSelector} dragLabel={copy.theme.drag} />
+      <FloatingLanguageSelector language={language} onChange={changeLanguage} labels={copy.languageSelector} />
       {welcomeToastState !== "hidden" && (
         <div
           role="status"
@@ -402,16 +254,11 @@ function Index() {
       )}
       <button
         type="button"
-        onClick={handleToggleClick}
-        onPointerDown={startToggleDrag}
-        onPointerMove={moveToggle}
-        onPointerUp={finishToggleDrag}
-        onPointerCancel={finishToggleDrag}
-        aria-label={`${darkMode ? copy.theme.switchToLight : copy.theme.switchToDark}. ${copy.theme.drag}`}
+        onClick={toggleTheme}
+        aria-label={darkMode ? copy.theme.switchToLight : copy.theme.switchToDark}
         aria-pressed={darkMode}
-        title={`${darkMode ? copy.theme.dark : copy.theme.light}. ${copy.theme.drag}`}
-        style={togglePosition ? { left: togglePosition.left, top: togglePosition.top, right: "auto", bottom: "auto" } : undefined}
-        className="fixed bottom-6 right-6 z-50 flex h-10 w-10 touch-none select-none cursor-grab items-center justify-center rounded-full border border-border bg-background text-foreground shadow-lg transition-colors hover:bg-muted active:cursor-grabbing focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        title={`${darkMode ? copy.theme.dark : copy.theme.light}`}
+        className="fixed bottom-1 right-4 z-50 flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background text-foreground shadow-lg transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         {darkMode ? <Sun aria-hidden="true" className="h-5 w-5" /> : <Moon aria-hidden="true" className="h-5 w-5" />}
       </button>
