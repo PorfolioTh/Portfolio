@@ -7,7 +7,7 @@ import {
   Briefcase, Code2, Database, Facebook, Github, Gitlab, Instagram, LayoutTemplate,
   GraduationCap, Linkedin, Mail, MapPin, MessageCircle, Moon, Palette, Phone, Sun, ListChecks, Wrench, X,
 } from "lucide-react";
-import portrait from "@/assets/portrait.jfif";
+import portrait from "@/assets/th.png";
 import maritime from "@/assets/maritime.jpg";
 import aesna from "@/assets/aesna.jpg";
 import vanilla from "@/assets/vanilla.jpg";
