@@ -9,7 +9,8 @@ export type PortfolioCopy = {
     hero: { greeting: string; description: string; location: string; contact: string; download: string; role: string; portraitAlt: string };
     skills: { title: string; subtitle: string; categories: { title: string; items: string[] }[] };
     experience: { title: string; entries: { year: string; company: string; role: string; description: string }[] };
-    projects: { title: string; entries: { title: string; description: string; stack: string[] }[] };
+    projects: { title: string; viewProject: string };
+    projectPage: { backToProjects: string; viewRepository: string; description: string; objectives: string; stack: string; features: string; details: string; noImage: string };
     education: { title: string; entries: { degree: string; school: string; description: string; year: string }[] };
     contact: {
         title: string;
@@ -68,13 +69,16 @@ export const portfolioCopy: Record<Locale, PortfolioCopy> = {
                 { year: "2022", company: "Fyhary Soft", role: "Gestion d'entrepôt", description: "Création d'une application de gestion de stock et d'entrepôt." },
             ],
         },
-        projects: {
-            title: "Projets et réalisations",
-            entries: [
-                { title: "Transport maritime", description: "Plateforme complète de gestion du transport maritime : réservation de cargaisons, suivi des navires et facturation.", stack: ["React", "TypeScript", "Tailwind CSS", "Node.js", "Express", "MongoDB", "Redux Toolkit", "Figma"] },
-                { title: "AESN Fianarantsoa", description: "Site vitrine d'une association d'étudiants solidaires et natifs d'Antalaha, présentant ses activités.", stack: ["React", "TypeScript", "Tailwind CSS"] },
-                { title: "Natura Vanilla", description: "Site vitrine d'une entreprise spécialisée dans la production et la vente de vanille naturelle à Madagascar.", stack: ["HTML", "CSS", "JavaScript", "Tailwind CSS"] },
-            ],
+        projects: { title: "Projets et réalisations", viewProject: "Voir le projet" },
+        projectPage: {
+            backToProjects: "Retour aux projets",
+            viewRepository: "Voir le dépôt GitHub",
+            description: "Description",
+            objectives: "Objectifs",
+            stack: "Technologies",
+            features: "Fonctionnalités principales",
+            details: "Informations complémentaires",
+            noImage: "Aucune image pour ce projet",
         },
         education: {
             title: "Éducation",
@@ -160,13 +164,16 @@ export const portfolioCopy: Record<Locale, PortfolioCopy> = {
                 { year: "2022", company: "Fyhary Soft", role: "Warehouse management", description: "Created an inventory and warehouse management application." },
             ],
         },
-        projects: {
-            title: "Projects and work",
-            entries: [
-                { title: "Maritime transport", description: "Complete maritime transport management platform for cargo bookings, vessel tracking, and billing.", stack: ["React", "TypeScript", "Tailwind CSS", "Node.js", "Express", "MongoDB", "Redux Toolkit", "Figma"] },
-                { title: "AESN Fianarantsoa", description: "Showcase website for an association of students from Antalaha, highlighting its community activities.", stack: ["React", "TypeScript", "Tailwind CSS"] },
-                { title: "Natura Vanilla", description: "Showcase website for a Madagascar-based company producing and selling natural vanilla.", stack: ["HTML", "CSS", "JavaScript", "Tailwind CSS"] },
-            ],
+        projects: { title: "Projects and work", viewProject: "View project" },
+        projectPage: {
+            backToProjects: "Back to projects",
+            viewRepository: "View GitHub repository",
+            description: "Description",
+            objectives: "Objectives",
+            stack: "Technologies",
+            features: "Key features",
+            details: "Additional information",
+            noImage: "No image for this project",
         },
         education: {
             title: "Education",

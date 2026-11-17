@@ -10,33 +10,159 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminProtectedRouteImport } from './routes/admin/_protected'
+import { Route as AdminLoginRouteImport } from './routes/admin/login'
+import { Route as ProjetsProjectIdRouteImport } from './routes/projets/$projectId'
+import { Route as AdminProtectedIndexRouteImport } from './routes/admin/_protected/index'
+import { Route as AdminProtectedEducationRouteImport } from './routes/admin/_protected/education'
+import { Route as AdminProtectedExperiencesRouteImport } from './routes/admin/_protected/experiences'
+import { Route as AdminProtectedMessagesRouteImport } from './routes/admin/_protected/messages'
+import { Route as AdminProtectedProfileRouteImport } from './routes/admin/_protected/profile'
+import { Route as AdminProtectedProjectsRouteImport } from './routes/admin/_protected/projects'
+import { Route as AdminProtectedSkillsRouteImport } from './routes/admin/_protected/skills'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminProtectedRoute = AdminProtectedRouteImport.update({
+  id: '/admin/_protected',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjetsProjectIdRoute = ProjetsProjectIdRouteImport.update({
+  id: '/projets/$projectId',
+  path: '/projets/$projectId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminProtectedIndexRoute = AdminProtectedIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminProtectedRoute,
+} as any)
+const AdminProtectedEducationRoute = AdminProtectedEducationRouteImport.update({
+  id: '/education',
+  path: '/education',
+  getParentRoute: () => AdminProtectedRoute,
+} as any)
+const AdminProtectedExperiencesRoute =
+  AdminProtectedExperiencesRouteImport.update({
+    id: '/experiences',
+    path: '/experiences',
+    getParentRoute: () => AdminProtectedRoute,
+  } as any)
+const AdminProtectedMessagesRoute = AdminProtectedMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => AdminProtectedRoute,
+} as any)
+const AdminProtectedProfileRoute = AdminProtectedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AdminProtectedRoute,
+} as any)
+const AdminProtectedProjectsRoute = AdminProtectedProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => AdminProtectedRoute,
+} as any)
+const AdminProtectedSkillsRoute = AdminProtectedSkillsRouteImport.update({
+  id: '/skills',
+  path: '/skills',
+  getParentRoute: () => AdminProtectedRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminProtectedRouteWithChildren
+  '/admin/login': typeof AdminLoginRoute
+  '/projets/$projectId': typeof ProjetsProjectIdRoute
+  '/admin/education': typeof AdminProtectedEducationRoute
+  '/admin/experiences': typeof AdminProtectedExperiencesRoute
+  '/admin/messages': typeof AdminProtectedMessagesRoute
+  '/admin/profile': typeof AdminProtectedProfileRoute
+  '/admin/projects': typeof AdminProtectedProjectsRoute
+  '/admin/skills': typeof AdminProtectedSkillsRoute
+  '/admin/': typeof AdminProtectedIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/projets/$projectId': typeof ProjetsProjectIdRoute
+  '/admin/education': typeof AdminProtectedEducationRoute
+  '/admin/experiences': typeof AdminProtectedExperiencesRoute
+  '/admin/messages': typeof AdminProtectedMessagesRoute
+  '/admin/profile': typeof AdminProtectedProfileRoute
+  '/admin/projects': typeof AdminProtectedProjectsRoute
+  '/admin/skills': typeof AdminProtectedSkillsRoute
+  '/admin': typeof AdminProtectedIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin/_protected': typeof AdminProtectedRouteWithChildren
+  '/admin/login': typeof AdminLoginRoute
+  '/projets/$projectId': typeof ProjetsProjectIdRoute
+  '/admin/_protected/education': typeof AdminProtectedEducationRoute
+  '/admin/_protected/experiences': typeof AdminProtectedExperiencesRoute
+  '/admin/_protected/messages': typeof AdminProtectedMessagesRoute
+  '/admin/_protected/profile': typeof AdminProtectedProfileRoute
+  '/admin/_protected/projects': typeof AdminProtectedProjectsRoute
+  '/admin/_protected/skills': typeof AdminProtectedSkillsRoute
+  '/admin/_protected/': typeof AdminProtectedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/admin/login'
+    | '/projets/$projectId'
+    | '/admin/education'
+    | '/admin/experiences'
+    | '/admin/messages'
+    | '/admin/profile'
+    | '/admin/projects'
+    | '/admin/skills'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/admin/login'
+    | '/projets/$projectId'
+    | '/admin/education'
+    | '/admin/experiences'
+    | '/admin/messages'
+    | '/admin/profile'
+    | '/admin/projects'
+    | '/admin/skills'
+    | '/admin'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin/_protected'
+    | '/admin/login'
+    | '/projets/$projectId'
+    | '/admin/_protected/education'
+    | '/admin/_protected/experiences'
+    | '/admin/_protected/messages'
+    | '/admin/_protected/profile'
+    | '/admin/_protected/projects'
+    | '/admin/_protected/skills'
+    | '/admin/_protected/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminProtectedRoute: typeof AdminProtectedRouteWithChildren
+  AdminLoginRoute: typeof AdminLoginRoute
+  ProjetsProjectIdRoute: typeof ProjetsProjectIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +174,108 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/_protected': {
+      id: '/admin/_protected'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminProtectedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projets/$projectId': {
+      id: '/projets/$projectId'
+      path: '/projets/$projectId'
+      fullPath: '/projets/$projectId'
+      preLoaderRoute: typeof ProjetsProjectIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/_protected/': {
+      id: '/admin/_protected/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminProtectedIndexRouteImport
+      parentRoute: typeof AdminProtectedRoute
+    }
+    '/admin/_protected/education': {
+      id: '/admin/_protected/education'
+      path: '/education'
+      fullPath: '/admin/education'
+      preLoaderRoute: typeof AdminProtectedEducationRouteImport
+      parentRoute: typeof AdminProtectedRoute
+    }
+    '/admin/_protected/experiences': {
+      id: '/admin/_protected/experiences'
+      path: '/experiences'
+      fullPath: '/admin/experiences'
+      preLoaderRoute: typeof AdminProtectedExperiencesRouteImport
+      parentRoute: typeof AdminProtectedRoute
+    }
+    '/admin/_protected/messages': {
+      id: '/admin/_protected/messages'
+      path: '/messages'
+      fullPath: '/admin/messages'
+      preLoaderRoute: typeof AdminProtectedMessagesRouteImport
+      parentRoute: typeof AdminProtectedRoute
+    }
+    '/admin/_protected/profile': {
+      id: '/admin/_protected/profile'
+      path: '/profile'
+      fullPath: '/admin/profile'
+      preLoaderRoute: typeof AdminProtectedProfileRouteImport
+      parentRoute: typeof AdminProtectedRoute
+    }
+    '/admin/_protected/projects': {
+      id: '/admin/_protected/projects'
+      path: '/projects'
+      fullPath: '/admin/projects'
+      preLoaderRoute: typeof AdminProtectedProjectsRouteImport
+      parentRoute: typeof AdminProtectedRoute
+    }
+    '/admin/_protected/skills': {
+      id: '/admin/_protected/skills'
+      path: '/skills'
+      fullPath: '/admin/skills'
+      preLoaderRoute: typeof AdminProtectedSkillsRouteImport
+      parentRoute: typeof AdminProtectedRoute
+    }
   }
 }
 
+interface AdminProtectedRouteChildren {
+  AdminProtectedEducationRoute: typeof AdminProtectedEducationRoute
+  AdminProtectedExperiencesRoute: typeof AdminProtectedExperiencesRoute
+  AdminProtectedMessagesRoute: typeof AdminProtectedMessagesRoute
+  AdminProtectedProfileRoute: typeof AdminProtectedProfileRoute
+  AdminProtectedProjectsRoute: typeof AdminProtectedProjectsRoute
+  AdminProtectedSkillsRoute: typeof AdminProtectedSkillsRoute
+  AdminProtectedIndexRoute: typeof AdminProtectedIndexRoute
+}
+
+const AdminProtectedRouteChildren: AdminProtectedRouteChildren = {
+  AdminProtectedEducationRoute: AdminProtectedEducationRoute,
+  AdminProtectedExperiencesRoute: AdminProtectedExperiencesRoute,
+  AdminProtectedMessagesRoute: AdminProtectedMessagesRoute,
+  AdminProtectedProfileRoute: AdminProtectedProfileRoute,
+  AdminProtectedProjectsRoute: AdminProtectedProjectsRoute,
+  AdminProtectedSkillsRoute: AdminProtectedSkillsRoute,
+  AdminProtectedIndexRoute: AdminProtectedIndexRoute,
+}
+
+const AdminProtectedRouteWithChildren = AdminProtectedRoute._addFileChildren(
+  AdminProtectedRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminProtectedRoute: AdminProtectedRouteWithChildren,
+  AdminLoginRoute: AdminLoginRoute,
+  ProjetsProjectIdRoute: ProjetsProjectIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

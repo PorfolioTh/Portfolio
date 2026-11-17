@@ -1,16 +1,16 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
-import { sendContactMessage } from "@/lib/contact.functions";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
+import { apiRequest, assetUrl } from "@/lib/api";
+import { fetchPortfolio, type PortfolioData } from "@/lib/portfolio-api";
 import { portfolioCopy, type Locale } from "@/lib/portfolio-copy";
 import {
   Briefcase, Code2, Database, Facebook, Github, Gitlab, Instagram, LayoutTemplate,
   GraduationCap, Linkedin, Mail, MapPin, MessageCircle, Moon, Palette, Phone, Sun, ListChecks, Wrench, X,
 } from "lucide-react";
 import portrait from "@/assets/th.png";
-import maritime from "@/assets/maritime.jpg";
-import aesna from "@/assets/aesna.jpg";
-import vanilla from "@/assets/vanilla.jpg";
 import handshake from "@/assets/handshake.jpg";
 import cv from "@/assets/CV/CV - ThéophileRas.pdf";
 
@@ -29,13 +29,12 @@ export const Route = createFileRoute("/")({
 });
 
 const skillIcons = [LayoutTemplate, Code2, Database, Palette, ListChecks, Wrench];
-const projectImages = [maritime, aesna, vanilla];
 const socialIcons = [Facebook, Instagram, MessageCircle, Linkedin, Gitlab, Github];
 const orbitIcons = Object.entries(import.meta.glob<string>("@/assets/icons/*.jpg", { eager: true, import: "default" }))
   .sort(([first], [second]) => first.localeCompare(second));
 const WELCOME_TOAST_DURATION_MS = 8000;
 
-function ProfileOrbit({ portraitAlt }: { portraitAlt: string }) {
+function ProfileOrbit({ portraitAlt, photoSrc }: { portraitAlt: string; photoSrc: string }) {
   const rings = [0, 1, 2].map((ringIndex) =>
     orbitIcons
       .filter((_, iconIndex) => iconIndex % 3 === ringIndex)
@@ -61,7 +60,7 @@ function ProfileOrbit({ portraitAlt }: { portraitAlt: string }) {
         </div>
       ))}
       <div className="profile-orbit__portrait">
-        <img src={portrait} alt={portraitAlt} className="h-full w-full scale-110 object-cover" />
+        <img src={photoSrc} alt={portraitAlt} className="h-full w-full scale-110 object-cover" />
       </div>
     </div>
   );
@@ -99,15 +98,31 @@ function Title({ t, sub, big }: { t: string; sub?: string; big?: boolean }) {
   );
 }
 
+function groupSkills(skills: PortfolioData["skills"]) {
+  const groups = new Map<string, string[]>();
+  for (const skill of skills) groups.set(skill.category, [...(groups.get(skill.category) ?? []), skill.name]);
+  return [...groups].map(([title, items]) => ({ title, items }));
+}
+
 function Index() {
   const [language, setLanguage] = useState<Locale>("fr");
   const [activeSection, setActiveSection] = useState("accueil");
-  const [status, setStatus] = useState<"idle" | "loading" | "ok" | "saved" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "loading" | "saved" | "error">("idle");
   const [darkMode, setDarkMode] = useState(false);
   const [welcomeToastState, setWelcomeToastState] = useState<"visible" | "closing" | "hidden">("visible");
   const welcomeToastTimer = useRef<number | null>(null);
-  const send = useServerFn(sendContactMessage);
+
   const copy = portfolioCopy[language];
+  const portfolio = useQuery({ queryKey: ["portfolio"], queryFn: fetchPortfolio, retry: false });
+  const photoSrc = assetUrl(portfolio.data?.profile.photoUrl) ?? portrait;
+  const projects = portfolio.data?.projects ?? [];
+  const skillCategories = portfolio.data ? groupSkills(portfolio.data.skills) : copy.skills.categories;
+  const experienceEntries = portfolio.data
+    ? portfolio.data.experiences.map(({ period, company, role, description }) => ({ year: period, company, role, description }))
+    : copy.experience.entries;
+  const educationEntries = portfolio.data
+    ? portfolio.data.education.map(({ degree, school, description, period }) => ({ degree, school, description, year: period }))
+    : copy.education.entries;
 
   useEffect(() => {
     if (!("IntersectionObserver" in window)) return;
@@ -191,9 +206,17 @@ function Index() {
     const f = new FormData(form);
     setStatus("loading");
     try {
-      const result = await send({ data: Object.fromEntries(f) });
+      const result = await apiRequest<{ notificationSent: boolean }>("/api/portfolio/contact", {
+        method: "POST",
+        body: Object.fromEntries(f),
+      });
       form.reset();
-      setStatus(result.notificationSent ? "ok" : "saved");
+      if (result.notificationSent) {
+        toast.success(copy.contact.form.sent);
+        setStatus("idle");
+      } else {
+        setStatus("saved");
+      }
     } catch {
       setStatus("error");
     }
@@ -203,7 +226,7 @@ function Index() {
       <header className="sticky top-0 z-20 bg-background/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <a href="#accueil" className="-ml-6 flex items-center gap-3 text-lg font-medium xl:-ml-20">
-            <img src={portrait} alt="" className="h-11 w-11 rounded-full border object-cover" />
+            <img src={photoSrc} alt="" className="h-11 w-11 rounded-full border object-cover" />
             <span className="name-typeface">Théophile</span>
           </a>
           <nav className="hidden gap-8 text-sm font-medium md:flex lg:gap-10">
@@ -229,6 +252,7 @@ function Index() {
         </div>
       </header>
       <FloatingLanguageSelector language={language} onChange={changeLanguage} labels={copy.languageSelector} />
+      <Toaster position="bottom-right" />
       {welcomeToastState !== "hidden" && (
         <div
           role="status"
@@ -279,14 +303,14 @@ function Index() {
           </div>
         </div>
         <div className="relative mx-auto w-full max-w-[34rem] xl:translate-x-12">
-          <ProfileOrbit portraitAlt={copy.hero.portraitAlt} />
+          <ProfileOrbit portraitAlt={copy.hero.portraitAlt} photoSrc={photoSrc} />
           <div className="card-soft absolute -bottom-2 right-0 flex items-center gap-2 px-4 py-3 text-sm font-medium">{copy.hero.role}</div>
         </div>
       </section>
       <section id="competences" className="bg-surface py-24">
         <Title t={copy.skills.title} sub={copy.skills.subtitle} big />
         <div className="page-rail grid max-w-7xl gap-8 md:grid-cols-3">
-          {copy.skills.categories.map(({ title, items }, index) => {
+          {skillCategories.map(({ title, items }, index) => {
             const Icon = skillIcons[index] ?? LayoutTemplate;
             return (
               <div key={title} className="card-soft p-7 transition hover:-translate-y-1">
@@ -303,7 +327,7 @@ function Index() {
         <div className="page-rail relative max-w-7xl">
           <div className="absolute left-1/2 top-0 hidden h-full w-px bg-brand-soft md:block" />
           <div className="space-y-12">
-            {copy.experience.entries.map(({ year, company, role, description }, index) => (
+            {experienceEntries.map(({ year, company, role, description }, index) => (
               <div key={`${year}-${company}-${role}`} className={`relative md:w-1/2 ${index % 2 ? "md:ml-auto md:pl-0" : "md:pr-0"}`}>
                 <span className={`absolute top-1/2 hidden h-2.5 w-2.5 rounded-full bg-brand md:block ${index % 2 ? "-left-[5px]" : "-right-[5px]"}`} />
                 <div className="card-soft flex gap-5 p-7">
@@ -324,16 +348,28 @@ function Index() {
       <section id="projets" className="bg-surface py-24">
         <Title t={copy.projects.title} />
         <div className="page-rail grid max-w-7xl gap-8 md:grid-cols-3">
-          {copy.projects.entries.map((project, index) => (
-            <article key={project.title} className="card-soft dark:bg-card overflow-hidden transition hover:-translate-y-1">
-              <img src={projectImages[index] ?? maritime} alt={project.title} className="h-48 w-full object-cover" />
-              <div className="p-6">
-                <h3 className="text-xl font-medium">{project.title}</h3>
-                <p className="mt-3 line-clamp-2 text-muted-foreground">{project.description}</p>
-                <div className="mt-5 flex flex-wrap gap-2">{project.stack.map((item) => <span key={item} className="chip font-medium">{item}</span>)}</div>
-              </div>
-            </article>
-          ))}
+          {projects.map((project) => {
+            const imageSrc = assetUrl(project.imageUrl);
+            return (
+              <article key={project.id} className="card-soft dark:bg-card overflow-hidden transition hover:-translate-y-1">
+                <Link to="/projets/$projectId" params={{ projectId: String(project.id) }} className="block">
+                  {imageSrc ? (
+                    <img src={imageSrc} alt={project.title} className="h-48 w-full object-cover" />
+                  ) : (
+                    <div className="flex h-48 items-center justify-center bg-muted text-brand">
+                      <Code2 className="h-10 w-10" aria-hidden="true" />
+                    </div>
+                  )}
+                  <div className="p-6">
+                    <h3 className="text-xl font-medium">{project.title}</h3>
+                    <p className="mt-3 line-clamp-2 text-muted-foreground">{project.description}</p>
+                    <div className="mt-5 flex flex-wrap gap-2">{project.stack.map((item) => <span key={item} className="chip font-medium">{item}</span>)}</div>
+                    <span className="mt-5 inline-block font-medium text-brand">{copy.projects.viewProject}</span>
+                  </div>
+                </Link>
+              </article>
+            );
+          })}
         </div>
       </section>
 
@@ -342,7 +378,7 @@ function Index() {
         <div className="page-rail relative max-w-7xl">
           <div className="absolute left-1/2 top-0 hidden h-full w-px bg-brand-soft md:block" />
           <div className="space-y-12">
-            {copy.education.entries.map(({ degree, school, description, year }, index) => (
+            {educationEntries.map(({ degree, school, description, year }, index) => (
               <div key={degree} className={`relative md:w-1/2 ${index % 2 ? "md:ml-auto md:pl-0" : "md:pr-0"}`}>
                 <span className={`absolute top-1/2 hidden h-2.5 w-2.5 rounded-full bg-brand md:block ${index % 2 ? "-left-[5px]" : "-right-[5px]"}`} />
                 <div className="card-soft flex gap-5 p-7">
@@ -387,7 +423,7 @@ function Index() {
             <label className="block text-sm font-medium">{copy.contact.form.subject}<input name="subject" maxLength={200} className="field" /></label>
             <label className="block text-sm font-medium">{copy.contact.form.message}<textarea name="message" required maxLength={5000} rows={6} className="field" /></label>
             <button disabled={status === "loading"} className="w-full disabled:opacity-60 rounded-lg bg-primary py-3 font-medium text-primary-foreground hover:opacity-90">{status === "loading" ? copy.contact.form.sending : copy.contact.form.submit}</button>
-            {status === "ok" && <p className="text-center text-sm text-brand">{copy.contact.form.sent}</p>}
+
             {status === "saved" && <p className="text-center text-sm text-destructive">{copy.contact.form.saved}</p>}
             {status === "error" && <p className="text-center text-sm text-destructive">{copy.contact.form.error}</p>}
           </form>
