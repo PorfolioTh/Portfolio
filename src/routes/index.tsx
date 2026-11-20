@@ -11,6 +11,33 @@ import {
   GraduationCap, Mail, MapPin, MessageCircle, Moon, Palette, Phone, Sun, ListChecks, Wrench, X,
 } from "lucide-react";
 import handshake from "@/assets/handshake.jpg";
+import icon14779d4968d4999239dc8264fdd026cc from "@/assets/icons/14779d4968d4999239dc8264fdd026cc.jpg";
+import icon1b29a538acb3efa07b2289d932b2daa9 from "@/assets/icons/1b29a538acb3efa07b2289d932b2daa9.jpg";
+import icon1d963dce52d6527abc02fc4d37337b09 from "@/assets/icons/1d963dce52d6527abc02fc4d37337b09.jpg";
+import icon2c54f65a03c35ac90f5c73b92da39779 from "@/assets/icons/2c54f65a03c35ac90f5c73b92da39779.jpg";
+import icon499b1d8f955acd1d3ec30f217eddfa2a from "@/assets/icons/499b1d8f955acd1d3ec30f217eddfa2a.jpg";
+import icon4a417d1f8cab870d4e93498ae1ae2d21 from "@/assets/icons/4a417d1f8cab870d4e93498ae1ae2d21.jpg";
+import icon521843744a6b97eb7083216a3c2e895b from "@/assets/icons/521843744a6b97eb7083216a3c2e895b.jpg";
+import icon5eb95eaf598d1007befaa78d038c2b2f from "@/assets/icons/5eb95eaf598d1007befaa78d038c2b2f.jpg";
+import icon66ec3b7a760749c090592af88ad71c7b from "@/assets/icons/66ec3b7a760749c090592af88ad71c7b.jpg";
+import icon808c8c39f0e1e76d75deb0de23ada852 from "@/assets/icons/808c8c39f0e1e76d75deb0de23ada852.jpg";
+import icon8c0ab3baec0ebc6cfbad22cbe206d0cd from "@/assets/icons/8c0ab3baec0ebc6cfbad22cbe206d0cd.jpg";
+import icon91237f1eca767ef74d722ca534f9281a from "@/assets/icons/91237f1eca767ef74d722ca534f9281a.jpg";
+import icon9ae8ceaa543d93d321a63d4f6f1b120d from "@/assets/icons/9ae8ceaa543d93d321a63d4f6f1b120d.jpg";
+import icon9cc241c59d401c0fd99b1e47c2f90551 from "@/assets/icons/9cc241c59d401c0fd99b1e47c2f90551.jpg";
+import icon9db864bb96c5117671f9aed169a85700 from "@/assets/icons/9db864bb96c5117671f9aed169a85700.jpg";
+import icon9eb571d4a0f9d11a1e70e7f0e4ee908a from "@/assets/icons/9eb571d4a0f9d11a1e70e7f0e4ee908a.jpg";
+import iconA2ed6ed30e28d9c32766ca082a401581 from "@/assets/icons/a2ed6ed30e28d9c32766ca082a401581.jpg";
+import iconA95aadde4325065401dc6942ea5dad90 from "@/assets/icons/a95aadde4325065401dc6942ea5dad90.jpg";
+import iconC7b8113247fecd83bd9b5ed5bd3f34d5 from "@/assets/icons/c7b8113247fecd83bd9b5ed5bd3f34d5.jpg";
+import iconCe96ec1279df6307f5baf27a4d60301b from "@/assets/icons/ce96ec1279df6307f5baf27a4d60301b.jpg";
+import iconD96d4ab96b1d89388dd73c1cce67d829 from "@/assets/icons/d96d4ab96b1d89388dd73c1cce67d829.jpg";
+import iconDa3c36ab7d12285e143e25c4741d3d3e from "@/assets/icons/da3c36ab7d12285e143e25c4741d3d3e.jpg";
+import iconEad0bde8da1920238655504666b62105 from "@/assets/icons/ead0bde8da1920238655504666b62105.jpg";
+import iconEd94e3e6fae5dd09cd8f7652f4a01c3d from "@/assets/icons/ed94e3e6fae5dd09cd8f7652f4a01c3d.jpg";
+import iconF63a855e59ad35defdbcee7b00edd0b7 from "@/assets/icons/f63a855e59ad35defdbcee7b00edd0b7.jpg";
+import iconF9a6129b0d10fd385e85a8cc50e25e15 from "@/assets/icons/f9a6129b0d10fd385e85a8cc50e25e15.jpg";
+import iconFc93f63c2e801b1d0824f66c6b7bcad8 from "@/assets/icons/fc93f63c2e801b1d0824f66c6b7bcad8.jpg";
 import cv from "@/assets/CV/CV - ThéophileRas.pdf";
 
 export const Route = createFileRoute("/")({
@@ -37,15 +64,42 @@ const socialLinks = [
   { Icon: MessageCircle, href: WHATSAPP_URL },
   { Icon: Github, href: GITHUB_URL },
 ];
-const orbitIcons = Object.entries(import.meta.glob<string>("@/assets/icons/*.jpg", { eager: true, import: "default" }))
-  .sort(([first], [second]) => first.localeCompare(second));
+const orbitIcons = [
+  icon14779d4968d4999239dc8264fdd026cc,
+  icon1b29a538acb3efa07b2289d932b2daa9,
+  icon1d963dce52d6527abc02fc4d37337b09,
+  icon2c54f65a03c35ac90f5c73b92da39779,
+  icon499b1d8f955acd1d3ec30f217eddfa2a,
+  icon4a417d1f8cab870d4e93498ae1ae2d21,
+  icon521843744a6b97eb7083216a3c2e895b,
+  icon5eb95eaf598d1007befaa78d038c2b2f,
+  icon66ec3b7a760749c090592af88ad71c7b,
+  icon808c8c39f0e1e76d75deb0de23ada852,
+  icon8c0ab3baec0ebc6cfbad22cbe206d0cd,
+  icon91237f1eca767ef74d722ca534f9281a,
+  icon9ae8ceaa543d93d321a63d4f6f1b120d,
+  icon9cc241c59d401c0fd99b1e47c2f90551,
+  icon9db864bb96c5117671f9aed169a85700,
+  icon9eb571d4a0f9d11a1e70e7f0e4ee908a,
+  iconA2ed6ed30e28d9c32766ca082a401581,
+  iconA95aadde4325065401dc6942ea5dad90,
+  iconC7b8113247fecd83bd9b5ed5bd3f34d5,
+  iconCe96ec1279df6307f5baf27a4d60301b,
+  iconD96d4ab96b1d89388dd73c1cce67d829,
+  iconDa3c36ab7d12285e143e25c4741d3d3e,
+  iconEad0bde8da1920238655504666b62105,
+  iconEd94e3e6fae5dd09cd8f7652f4a01c3d,
+  iconF63a855e59ad35defdbcee7b00edd0b7,
+  iconF9a6129b0d10fd385e85a8cc50e25e15,
+  iconFc93f63c2e801b1d0824f66c6b7bcad8,
+];
 const WELCOME_TOAST_DURATION_MS = 8000;
 
 function ProfileOrbit({ portraitAlt, photoSrc }: { portraitAlt: string; photoSrc: string | null }) {
   const rings = [0, 1, 2].map((ringIndex) =>
     orbitIcons
       .filter((_, iconIndex) => iconIndex % 3 === ringIndex)
-      .map(([src], iconIndex, icons) => {
+      .map((src, iconIndex, icons) => {
         const angle = (iconIndex / icons.length) * Math.PI * 2 - Math.PI / 2;
         return {
           src,
