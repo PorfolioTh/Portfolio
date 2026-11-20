@@ -10,7 +10,6 @@ import {
   Briefcase, Code2, Database, Facebook, Github, Instagram, LayoutTemplate,
   GraduationCap, Mail, MapPin, MessageCircle, Moon, Palette, Phone, Sun, ListChecks, Wrench, X,
 } from "lucide-react";
-import portrait from "@/assets/th.png";
 import handshake from "@/assets/handshake.jpg";
 import cv from "@/assets/CV/CV - ThéophileRas.pdf";
 
@@ -42,7 +41,7 @@ const orbitIcons = Object.entries(import.meta.glob<string>("@/assets/icons/*.jpg
   .sort(([first], [second]) => first.localeCompare(second));
 const WELCOME_TOAST_DURATION_MS = 8000;
 
-function ProfileOrbit({ portraitAlt, photoSrc }: { portraitAlt: string; photoSrc: string }) {
+function ProfileOrbit({ portraitAlt, photoSrc }: { portraitAlt: string; photoSrc: string | null }) {
   const rings = [0, 1, 2].map((ringIndex) =>
     orbitIcons
       .filter((_, iconIndex) => iconIndex % 3 === ringIndex)
@@ -68,7 +67,7 @@ function ProfileOrbit({ portraitAlt, photoSrc }: { portraitAlt: string; photoSrc
         </div>
       ))}
       <div className="profile-orbit__portrait">
-        <img src={photoSrc} alt={portraitAlt} className="h-full w-full scale-110 object-cover" />
+        {photoSrc && <img src={photoSrc} alt={portraitAlt} className="h-full w-full scale-110 object-cover" />}
       </div>
     </div>
   );
@@ -122,15 +121,11 @@ function Index() {
 
   const copy = portfolioCopy[language];
   const portfolio = useQuery({ queryKey: ["portfolio"], queryFn: fetchPortfolio, retry: false });
-  const photoSrc = assetUrl(portfolio.data?.profile.photoUrl) ?? portrait;
+  const photoSrc = assetUrl(portfolio.data?.profile.photoUrl) ?? null;
   const projects = portfolio.data?.projects ?? [];
-  const skillCategories = portfolio.data ? groupSkills(portfolio.data.skills) : copy.skills.categories;
-  const experienceEntries = portfolio.data
-    ? portfolio.data.experiences.map(({ period, company, role, description }) => ({ year: period, company, role, description }))
-    : copy.experience.entries;
-  const educationEntries = portfolio.data
-    ? portfolio.data.education.map(({ degree, school, description, period }) => ({ degree, school, description, year: period }))
-    : copy.education.entries;
+  const skillCategories = portfolio.data ? groupSkills(portfolio.data.skills) : [];
+  const experienceEntries = (portfolio.data?.experiences ?? []).map(({ period, company, role, description }) => ({ year: period, company, role, description }));
+  const educationEntries = (portfolio.data?.education ?? []).map(({ degree, school, description, period }) => ({ degree, school, description, year: period }));
 
   useEffect(() => {
     if (!("IntersectionObserver" in window)) return;
@@ -234,7 +229,7 @@ function Index() {
       <header className="sticky top-0 z-20 bg-background/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <a href="#accueil" className="-ml-6 flex items-center gap-3 text-lg font-medium xl:-ml-20">
-            <img src={photoSrc} alt="" className="h-11 w-11 rounded-full border object-cover" />
+            {photoSrc && <img src={photoSrc} alt="" className="h-11 w-11 rounded-full border object-cover" />}
             <span className="name-typeface">Théophile</span>
           </a>
           <nav className="hidden gap-8 text-sm font-medium md:flex lg:gap-10">
