@@ -7,8 +7,8 @@ import { apiRequest, assetUrl } from "@/lib/api";
 import { fetchPortfolio, type PortfolioData } from "@/lib/portfolio-api";
 import { portfolioCopy, type Locale } from "@/lib/portfolio-copy";
 import {
-  Briefcase, Code2, Database, Facebook, Github, Gitlab, Instagram, LayoutTemplate,
-  GraduationCap, Linkedin, Mail, MapPin, MessageCircle, Moon, Palette, Phone, Sun, ListChecks, Wrench, X,
+  Briefcase, Code2, Database, Facebook, Github, Instagram, LayoutTemplate,
+  GraduationCap, Mail, MapPin, MessageCircle, Moon, Palette, Phone, Sun, ListChecks, Wrench, X,
 } from "lucide-react";
 import portrait from "@/assets/th.png";
 import handshake from "@/assets/handshake.jpg";
@@ -29,7 +29,15 @@ export const Route = createFileRoute("/")({
 });
 
 const skillIcons = [LayoutTemplate, Code2, Database, Palette, ListChecks, Wrench];
-const socialIcons = [Facebook, Instagram, MessageCircle, Linkedin, Gitlab, Github];
+const FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61558554120999";
+const WHATSAPP_URL = "https://wa.me/261341434863";
+const GITHUB_URL = "https://github.com/Theophile706";
+const socialLinks = [
+  { Icon: Facebook, href: FACEBOOK_URL },
+  { Icon: Instagram, href: "#" },
+  { Icon: MessageCircle, href: WHATSAPP_URL },
+  { Icon: Github, href: GITHUB_URL },
+];
 const orbitIcons = Object.entries(import.meta.glob<string>("@/assets/icons/*.jpg", { eager: true, import: "default" }))
   .sort(([first], [second]) => first.localeCompare(second));
 const WELCOME_TOAST_DURATION_MS = 8000;
@@ -407,11 +415,25 @@ function Index() {
             <ul className="mt-3 space-y-3 text-sm">
               <li className="flex items-center gap-3"><Phone className="h-5 w-5" /> +261 14 348 63</li>
               <li className="flex items-center gap-3"><Mail className="h-5 w-5" /> <a href="mailto:rasolofosontheophile43@gmail.com">{copy.contact.professionalEmail}</a></li>
-              <li className="flex items-center gap-3"><MessageCircle className="h-5 w-5" /> {copy.contact.whatsapp}</li>
+              <li className="flex items-center gap-3">
+                <MessageCircle className="h-5 w-5" />
+                <a href={WHATSAPP_URL} target="_blank" rel="noreferrer noopener">{copy.contact.whatsapp}</a>
+              </li>
             </ul>
             <p className="mt-8 font-medium">{copy.contact.follow}</p>
             <div className="mt-3 flex gap-3">
-              {socialIcons.map((Icon, index) => <a key={copy.socialLabels[index]} href="#" aria-label={copy.socialLabels[index]} className="flex h-11 w-11 items-center justify-center rounded-full bg-muted text-brand hover:bg-brand-soft"><Icon className="h-5 w-5" /></a>)}
+              {socialLinks.map(({ Icon, href }, index) => (
+                <a
+                  key={copy.socialLabels[index]}
+                  href={href}
+                  aria-label={copy.socialLabels[index]}
+                  target={href.startsWith("https://") ? "_blank" : undefined}
+                  rel={href.startsWith("https://") ? "noreferrer noopener" : undefined}
+                  className="flex h-11 w-11 items-center justify-center rounded-full bg-muted text-brand hover:bg-brand-soft"
+                >
+                  <Icon className="h-5 w-5" />
+                </a>
+              ))}
             </div>
           </div>
           <form className="card-soft space-y-5 p-9" onSubmit={onSubmit}>
@@ -440,7 +462,18 @@ function Index() {
           <div>
             <h4 className="text-xl font-medium">{copy.footer.networks}</h4>
             <div className="mt-4 flex gap-3">
-              {socialIcons.map((Icon, index) => <a key={copy.socialLabels[index]} href="#" aria-label={copy.socialLabels[index]} className="flex h-11 w-11 items-center justify-center rounded-lg border border-footer-foreground/20 bg-footer-foreground/5 hover:bg-footer-foreground/15"><Icon className="h-5 w-5" /></a>)}
+              {socialLinks.map(({ Icon, href }, index) => (
+                <a
+                  key={copy.socialLabels[index]}
+                  href={href}
+                  aria-label={copy.socialLabels[index]}
+                  target={href.startsWith("https://") ? "_blank" : undefined}
+                  rel={href.startsWith("https://") ? "noreferrer noopener" : undefined}
+                  className="flex h-11 w-11 items-center justify-center rounded-lg border border-footer-foreground/20 bg-footer-foreground/5 hover:bg-footer-foreground/15"
+                >
+                  <Icon className="h-5 w-5" />
+                </a>
+              ))}
             </div>
             <p className="mt-4 text-xs opacity-60">{copy.footer.socialDescription}</p>
           </div>

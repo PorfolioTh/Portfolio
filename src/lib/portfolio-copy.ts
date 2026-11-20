@@ -113,7 +113,7 @@ export const portfolioCopy: Record<Locale, PortfolioCopy> = {
             location: "Antsirabe, Madagascar",
             copyright: "© 2023 RASOLOFOSON Théophile",
         },
-        socialLabels: ["Facebook", "Instagram", "WhatsApp", "LinkedIn", "GitLab", "GitHub"],
+        socialLabels: ["Facebook", "Instagram", "WhatsApp", "GitHub"],
         fallback: {
             notFoundTitle: "Page introuvable",
             notFoundDescription: "La page recherchée n'existe pas ou a été déplacée.",
@@ -208,7 +208,7 @@ export const portfolioCopy: Record<Locale, PortfolioCopy> = {
             location: "Antsirabe, Madagascar",
             copyright: "© 2023 RASOLOFOSON Théophile",
         },
-        socialLabels: ["Facebook", "Instagram", "WhatsApp", "LinkedIn", "GitLab", "GitHub"],
+        socialLabels: ["Facebook", "Instagram", "WhatsApp", "GitHub"],
         fallback: {
             notFoundTitle: "Page not found",
             notFoundDescription: "The page you're looking for doesn't exist or has been moved.",
