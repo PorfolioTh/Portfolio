@@ -1,6 +1,6 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera, Code2, Loader2, Pencil, Plus, Trash2, Upload, X } from "lucide-react";
+import { Camera, Code2, Loader2, Pencil, Plus, Star, Trash2, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { apiRequest, assetUrl } from "@/lib/api";
-import type { Project } from "@/lib/portfolio-api";
+import { fetchProjectImages, type Project } from "@/lib/portfolio-api";
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -93,8 +93,8 @@ export function ProjectManager() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Project | null>(null);
   const [form, setForm] = useState<FormState>(toFormState(null));
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [imageError, setImageError] = useState<string | null>(null);
   const [toDelete, setToDelete] = useState<Project | null>(null);
 
@@ -103,19 +103,24 @@ export function ProjectManager() {
     queryFn: () => apiRequest<Project[]>("/api/admin/projects", { auth: true }),
   });
 
+  const editingId = editing?.id;
+  const images = useQuery({
+    queryKey: ["admin", "project-images", editingId],
+    queryFn: () => fetchProjectImages(editingId as number),
+    enabled: dialogOpen && editingId !== undefined,
+  });
+  const currentCover = list.data?.find((project) => project.id === editingId)?.imageUrl ?? editing?.imageUrl ?? null;
+
   useEffect(() => {
-    if (!imageFile) {
-      setImagePreview(null);
-      return;
-    }
-    const url = URL.createObjectURL(imageFile);
-    setImagePreview(url);
-    return () => URL.revokeObjectURL(url);
-  }, [imageFile]);
+    const urls = imageFiles.map((file) => URL.createObjectURL(file));
+    setImagePreviews(urls);
+    return () => urls.forEach((url) => URL.revokeObjectURL(url));
+  }, [imageFiles]);
 
   function invalidateProjects() {
     queryClient.invalidateQueries({ queryKey: ["admin", "projects"] });
     queryClient.invalidateQueries({ queryKey: ["admin", "dashboard"] });
+    queryClient.invalidateQueries({ queryKey: ["admin", "project-images"] });
     queryClient.invalidateQueries({ queryKey: ["portfolio"] });
   }
 
@@ -126,14 +131,27 @@ export function ProjectManager() {
         : await apiRequest<Project>("/api/admin/projects", { method: "POST", body: payload, auth: true });
       // Once saved, a retry must update this project rather than create a duplicate if the image upload fails.
       setEditing(project);
-      if (imageFile) {
+      if (imageFiles.length > 0) {
         const formData = new FormData();
-        formData.append("image", imageFile);
-        await apiRequest<Project>(`/api/admin/projects/${project.id}/image`, { method: "PUT", formData, auth: true });
+        imageFiles.forEach((file) => formData.append("images", file));
+        await apiRequest(`/api/admin/projects/${project.id}/images`, { method: "POST", formData, auth: true });
+        setImageFiles([]);
       }
       return project;
     },
     onSuccess: () => setDialogOpen(false),
+    onSettled: invalidateProjects,
+  });
+
+  const removeImage = useMutation({
+    mutationFn: (imageId: string) =>
+      apiRequest<void>(`/api/admin/projects/${editingId}/images/${imageId}`, { method: "DELETE", auth: true }),
+    onSettled: invalidateProjects,
+  });
+
+  const setCover = useMutation({
+    mutationFn: (imageId: string) =>
+      apiRequest<Project>(`/api/admin/projects/${editingId}/cover/${imageId}`, { method: "PUT", auth: true }),
     onSettled: invalidateProjects,
   });
 
@@ -146,18 +164,22 @@ export function ProjectManager() {
   function openCreate() {
     setEditing(null);
     setForm(toFormState(null));
-    setImageFile(null);
+    setImageFiles([]);
     setImageError(null);
     save.reset();
+    removeImage.reset();
+    setCover.reset();
     setDialogOpen(true);
   }
 
   function openEdit(project: Project) {
     setEditing(project);
     setForm(toFormState(project));
-    setImageFile(null);
+    setImageFiles([]);
     setImageError(null);
     save.reset();
+    removeImage.reset();
+    setCover.reset();
     setDialogOpen(true);
   }
 
@@ -177,27 +199,24 @@ export function ProjectManager() {
   }
 
   function onImageChange(event: ChangeEvent<HTMLInputElement>) {
-    const selected = event.target.files?.[0] ?? null;
-    setImageError(null);
-    if (selected && !ACCEPTED_IMAGE_TYPES.includes(selected.type)) {
-      setImageError("Format non supporté (JPEG, PNG ou WebP).");
-      setImageFile(null);
-      return;
-    }
-    if (selected && selected.size > MAX_IMAGE_BYTES) {
-      setImageError("L'image dépasse 5 Mo.");
-      setImageFile(null);
-      return;
-    }
-    setImageFile(selected);
+    const selected = Array.from(event.target.files ?? []);
+    event.target.value = "";
+    const rejected: string[] = [];
+    const valid = selected.filter((file) => {
+      const ok = ACCEPTED_IMAGE_TYPES.includes(file.type) && file.size <= MAX_IMAGE_BYTES;
+      if (!ok) rejected.push(file.name);
+      return ok;
+    });
+    setImageError(
+      rejected.length > 0 ? `Image(s) ignorée(s) (JPEG, PNG ou WebP, 5 Mo maximum) : ${rejected.join(", ")}` : null,
+    );
+    if (valid.length > 0) setImageFiles((current) => [...current, ...valid]);
   }
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     save.mutate(toPayload(form));
   }
-
-  const displayedImage = imagePreview ?? assetUrl(editing?.imageUrl);
 
   return (
     <div className="space-y-8">
@@ -334,26 +353,95 @@ export function ProjectManager() {
               <Input id="project-order" type="number" min={0} max={9999} value={form.sortOrder} onChange={(event) => updateField("sortOrder", event.target.value)} />
             </FormField>
 
-            <div className="space-y-2">
-              <Label htmlFor="project-image">Image principale</Label>
-              <div className="flex items-center gap-4">
-                <div className="h-16 w-28 shrink-0 overflow-hidden rounded-md border bg-muted">
-                  {displayedImage ? (
-                    <img src={displayedImage} alt="" className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="flex h-full items-center justify-center text-muted-foreground">
-                      <Camera className="h-5 w-5" aria-hidden="true" />
-                    </div>
-                  )}
+            <div className="space-y-3">
+              <Label htmlFor="project-image">Images du projet</Label>
+
+              {editingId !== undefined && images.isLoading && (
+                <Loader2 className="h-5 w-5 animate-spin text-brand" aria-label="Chargement des images" />
+              )}
+              {images.data && images.data.length > 0 && (
+                <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {images.data.map((image) => {
+                    const isCover = assetUrl(currentCover) === assetUrl(image.url);
+                    return (
+                      <li key={image.id} className="space-y-2">
+                        <div className="relative aspect-video overflow-hidden rounded-md border bg-muted">
+                          <img src={assetUrl(image.url) ?? ""} alt="" className="h-full w-full object-cover" />
+                          {isCover && (
+                            <span className="absolute left-1 top-1 rounded bg-brand px-1.5 py-0.5 text-xs font-medium text-white">Couverture</span>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="flex-1"
+                            disabled={isCover || setCover.isPending}
+                            onClick={() => setCover.mutate(image.id)}
+                          >
+                            <Star aria-hidden="true" />
+                            Couverture
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="h-8 w-8"
+                            disabled={removeImage.isPending}
+                            onClick={() => removeImage.mutate(image.id)}
+                            aria-label="Supprimer cette image"
+                          >
+                            <Trash2 aria-hidden="true" />
+                          </Button>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+              {images.data && images.data.length === 0 && imageFiles.length === 0 && (
+                <div className="flex h-16 items-center justify-center gap-2 rounded-md border bg-muted text-sm text-muted-foreground">
+                  <Camera className="h-4 w-4" aria-hidden="true" />
+                  Aucune image enregistrée.
                 </div>
-                <label className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-md border-2 border-dashed border-border px-4 py-3 text-sm font-medium transition-colors hover:border-brand hover:bg-muted/50">
-                  <Upload className="h-4 w-4 text-brand" aria-hidden="true" />
-                  <span className="truncate">{imageFile ? imageFile.name : "Choisir une image"}</span>
-                  <input id="project-image" type="file" accept={ACCEPTED_IMAGE_TYPES.join(",")} onChange={onImageChange} className="sr-only" />
-                </label>
-              </div>
-              <p className="text-xs text-muted-foreground">JPEG, PNG ou WebP, 5 Mo maximum. L'image est envoyée à l'enregistrement.</p>
+              )}
+
+              {imageFiles.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">À envoyer à l'enregistrement ({imageFiles.length})</p>
+                  <ul className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+                    {imageFiles.map((file, index) => (
+                      <li key={`${file.name}-${index}`} className="relative aspect-video overflow-hidden rounded-md border bg-muted">
+                        {imagePreviews[index] && <img src={imagePreviews[index]} alt={file.name} className="h-full w-full object-cover" />}
+                        <button
+                          type="button"
+                          onClick={() => setImageFiles((current) => current.filter((_, i) => i !== index))}
+                          className="absolute right-1 top-1 rounded-full bg-background/90 p-1 hover:bg-background"
+                          aria-label={`Retirer ${file.name}`}
+                        >
+                          <X className="h-3 w-3" aria-hidden="true" />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-md border-2 border-dashed border-border px-4 py-3 text-sm font-medium transition-colors hover:border-brand hover:bg-muted/50">
+                <Upload className="h-4 w-4 text-brand" aria-hidden="true" />
+                <span>Ajouter des images</span>
+                <input id="project-image" type="file" multiple accept={ACCEPTED_IMAGE_TYPES.join(",")} onChange={onImageChange} className="sr-only" />
+              </label>
+              <p className="text-xs text-muted-foreground">
+                JPEG, PNG ou WebP, 5 Mo maximum par image, sans limite de nombre. Les nouvelles images sont envoyées à l'enregistrement ; la première devient la couverture si le projet n'en a pas.
+              </p>
               {imageError && <p role="alert" className="text-sm text-destructive">{imageError}</p>}
+              {(removeImage.isError || setCover.isError) && (
+                <p role="alert" className="text-sm text-destructive">
+                  {removeImage.error?.message ?? setCover.error?.message}
+                </p>
+              )}
             </div>
 
             {save.isError && <p role="alert" className="text-sm text-destructive">{save.error.message}</p>}

@@ -55,6 +55,12 @@ export function fetchPortfolio() {
   return apiRequest<PortfolioData>("/api/portfolio");
 }
 
+export type ProjectImage = { id: string; url: string };
+
+export function fetchProjectImages(id: number) {
+  return apiRequest<ProjectImage[]>(`/api/portfolio/projects/${id}/images`);
+}
+
 export function fetchProject(id: number) {
   return apiRequest<Project>(`/api/portfolio/projects/${id}`);
 }

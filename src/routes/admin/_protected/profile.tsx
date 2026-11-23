@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, type ChangeEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Camera, Loader2, Upload } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { apiRequest, assetUrl } from "@/lib/api";
 
 const MAX_SIZE_BYTES = 5 * 1024 * 1024;
@@ -42,10 +41,11 @@ function ProfilePage() {
       formData.append("photo", selected);
       return apiRequest<ProfileData>("/api/admin/profile/photo", { method: "PUT", formData, auth: true });
     },
-    onSuccess: () => {
-      setFile(null);
-      queryClient.invalidateQueries({ queryKey: ["admin", "profile"] });
+    onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["portfolio"] });
+      await queryClient.invalidateQueries({ queryKey: ["admin", "profile"] });
+      setFile(null);
     },
   });
 
@@ -64,6 +64,8 @@ function ProfilePage() {
       return;
     }
     setFile(selected);
+    if (selected) upload.mutate(selected);
+    event.target.value = "";
   }
 
   const currentPhoto = assetUrl(profile.data?.photoUrl);
@@ -93,24 +95,27 @@ function ProfilePage() {
 
         <div className="space-y-5">
           <div>
-            <p className="font-medium">{preview ? "Nouvelle photo (aperçu)" : "Photo actuelle"}</p>
-            <p className="mt-1 text-sm text-muted-foreground">JPEG, PNG ou WebP, 5 Mo maximum.</p>
+            <p className="font-medium">{upload.isPending ? "Enregistrement en cours…" : "Photo actuelle"}</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              JPEG, PNG ou WebP, 5 Mo maximum. La photo est enregistrée dans la base de données dès que vous la choisissez, puis affichée automatiquement sur le portfolio.
+            </p>
           </div>
 
           <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border px-6 py-8 text-center transition-colors hover:border-brand hover:bg-muted/50">
             <Upload className="h-6 w-6 text-brand" aria-hidden="true" />
-            <span className="text-sm font-medium">{file ? file.name : "Choisir une image"}</span>
-            <input type="file" accept={ACCEPTED_TYPES.join(",")} onChange={onFileChange} className="sr-only" />
+            <span className="text-sm font-medium">{profile.data?.photoUrl ? "Changer la photo" : "Choisir une image"}</span>
+            <input type="file" accept={ACCEPTED_TYPES.join(",")} onChange={onFileChange} disabled={upload.isPending} className="sr-only" />
           </label>
 
           {validationError && <p role="alert" className="text-sm text-destructive">{validationError}</p>}
           {upload.isError && <p role="alert" className="text-sm text-destructive">{upload.error.message}</p>}
-          {upload.isSuccess && !file && <p className="text-sm text-brand">Photo de profil mise à jour.</p>}
-
-          <Button disabled={!file || upload.isPending} onClick={() => file && upload.mutate(file)}>
-            {upload.isPending && <Loader2 className="animate-spin" aria-hidden="true" />}
-            Enregistrer la photo
-          </Button>
+          {upload.isPending && (
+            <p className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+              Envoi de la photo…
+            </p>
+          )}
+          {upload.isSuccess && <p className="text-sm text-brand">Photo enregistrée et affichée sur le portfolio.</p>}
         </div>
       </div>
     </div>

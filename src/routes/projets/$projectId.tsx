@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState, type ReactNode } from "react";
 import { ArrowLeft, Code2, Github, Loader2 } from "lucide-react";
 import { assetUrl } from "@/lib/api";
-import { fetchProject, type Project } from "@/lib/portfolio-api";
+import { fetchProject, fetchProjectImages, type Project } from "@/lib/portfolio-api";
 import { portfolioCopy, type Locale, type PortfolioCopy } from "@/lib/portfolio-copy";
 
 export const Route = createFileRoute("/projets/$projectId")({
@@ -77,6 +77,11 @@ function ProjectNotFound({ copy }: { copy: PortfolioCopy }) {
 
 function ProjectContent({ project, labels }: { project: Project; labels: PortfolioCopy["projectPage"] }) {
   const imageSrc = assetUrl(project.imageUrl);
+  const images = useQuery({
+    queryKey: ["portfolio", "project-images", project.id],
+    queryFn: () => fetchProjectImages(project.id),
+  });
+  const gallery = (images.data ?? []).filter((image) => assetUrl(image.url) !== imageSrc);
 
   return (
     <article className="space-y-12 pt-8">
@@ -86,6 +91,20 @@ function ProjectContent({ project, labels }: { project: Project; labels: Portfol
         <div className="flex aspect-video w-full flex-col items-center justify-center gap-3 rounded-2xl bg-muted text-muted-foreground">
           <Code2 className="h-10 w-10 text-brand" aria-hidden="true" />
           <span className="text-sm">{labels.noImage}</span>
+        </div>
+      )}
+
+      {gallery.length > 0 && (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {gallery.map((image) => (
+            <img
+              key={image.id}
+              src={assetUrl(image.url) ?? ""}
+              alt={project.title}
+              loading="lazy"
+              className="aspect-video w-full rounded-xl object-cover"
+            />
+          ))}
         </div>
       )}
 
