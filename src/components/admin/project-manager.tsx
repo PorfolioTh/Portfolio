@@ -32,6 +32,7 @@ type FormState = {
   features: string;
   details: DetailField[];
   githubUrl: string;
+  liveUrl: string;
   sortOrder: string;
 };
 
@@ -43,6 +44,7 @@ type ProjectPayload = {
   features: string[];
   details: DetailField[];
   githubUrl: string;
+  liveUrl: string;
   sortOrder: number;
 };
 
@@ -55,6 +57,7 @@ function toFormState(project: Project | null): FormState {
     features: project?.features.join("\n") ?? "",
     details: project?.details ?? [],
     githubUrl: project?.githubUrl ?? "",
+    liveUrl: project?.liveUrl ?? "",
     sortOrder: String(project?.sortOrder ?? 0),
   };
 }
@@ -74,6 +77,7 @@ function toPayload(form: FormState): ProjectPayload {
       .map(({ label, value }) => ({ label: label.trim(), value: value.trim() }))
       .filter(({ label, value }) => label && value),
     githubUrl: form.githubUrl.trim(),
+    liveUrl: form.liveUrl.trim(),
     sortOrder: Number(form.sortOrder),
   };
 }
@@ -347,6 +351,21 @@ export function ProjectManager() {
 
             <FormField id="project-github" label="Lien GitHub" hint="Optionnel. Adresse du dépôt, par exemple https://github.com/utilisateur/depot.">
               <Input id="project-github" type="url" maxLength={255} placeholder="https://github.com/…" value={form.githubUrl} onChange={(event) => updateField("githubUrl", event.target.value)} />
+            </FormField>
+
+            <FormField
+              id="project-live-url"
+              label="Lien du projet en ligne"
+              hint="Optionnel. URL du site déployé sur Vercel ou votre domaine, par exemple https://mon-projet.vercel.app."
+            >
+              <Input
+                id="project-live-url"
+                type="url"
+                maxLength={2048}
+                placeholder="https://…"
+                value={form.liveUrl}
+                onChange={(event) => updateField("liveUrl", event.target.value)}
+              />
             </FormField>
 
             <FormField id="project-order" label="Ordre d'affichage (0 = en premier)">

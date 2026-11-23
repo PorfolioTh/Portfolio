@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState, type ReactNode } from "react";
-import { ArrowLeft, Code2, Github, Loader2 } from "lucide-react";
+import { ArrowLeft, Code2, ExternalLink, Github, Loader2 } from "lucide-react";
 import { assetUrl } from "@/lib/api";
 import { fetchProject, fetchProjectImages, type Project } from "@/lib/portfolio-api";
 import { portfolioCopy, type Locale, type PortfolioCopy } from "@/lib/portfolio-copy";
@@ -110,16 +110,31 @@ function ProjectContent({ project, labels }: { project: Project; labels: Portfol
 
       <div className="space-y-6">
         <h1 className="name-typeface text-4xl font-bold md:text-5xl">{project.title}</h1>
-        {project.githubUrl && (
-          <a
-            href={project.githubUrl}
-            target="_blank"
-            rel="noreferrer noopener"
-            className="inline-flex items-center gap-2 rounded-lg border border-foreground px-5 py-2.5 font-medium hover:bg-muted"
-          >
-            <Github className="h-5 w-5" aria-hidden="true" />
-            {labels.viewRepository}
-          </a>
+        {(project.liveUrl || project.githubUrl) && (
+          <div className="flex flex-wrap gap-3">
+            {project.liveUrl && (
+              <a
+                href={project.liveUrl}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 font-medium text-primary-foreground hover:opacity-90"
+              >
+                <ExternalLink className="h-5 w-5" aria-hidden="true" />
+                {labels.viewLiveProject}
+              </a>
+            )}
+            {project.githubUrl && (
+              <a
+                href={project.githubUrl}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="inline-flex items-center gap-2 rounded-lg border border-foreground px-5 py-2.5 font-medium hover:bg-muted"
+              >
+                <Github className="h-5 w-5" aria-hidden="true" />
+                {labels.viewRepository}
+              </a>
+            )}
+          </div>
         )}
       </div>
 

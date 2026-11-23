@@ -39,6 +39,7 @@ export type Project = {
   features: string[];
   details: ProjectDetail[];
   githubUrl: string | null;
+  liveUrl: string | null;
   imageUrl: string | null;
   sortOrder: number;
 };

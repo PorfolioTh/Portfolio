@@ -9,8 +9,18 @@ export type PortfolioCopy = {
     hero: { greeting: string; description: string; location: string; contact: string; download: string; role: string; portraitAlt: string };
     skills: { title: string; subtitle: string; categories: { title: string; items: string[] }[] };
     experience: { title: string; entries: { year: string; company: string; role: string; description: string }[] };
-    projects: { title: string; viewProject: string };
-    projectPage: { backToProjects: string; viewRepository: string; description: string; objectives: string; stack: string; features: string; details: string; noImage: string };
+    projects: { title: string; viewProject: string; viewLiveProject: string };
+    projectPage: {
+        backToProjects: string;
+        viewRepository: string;
+        viewLiveProject: string;
+        description: string;
+        objectives: string;
+        stack: string;
+        features: string;
+        details: string;
+        noImage: string;
+    };
     education: { title: string; entries: { degree: string; school: string; description: string; year: string }[] };
     contact: {
         title: string;
@@ -69,10 +79,15 @@ export const portfolioCopy: Record<Locale, PortfolioCopy> = {
                 { year: "2022", company: "Fyhary Soft", role: "Gestion d'entrepôt", description: "Création d'une application de gestion de stock et d'entrepôt." },
             ],
         },
-        projects: { title: "Projets et réalisations", viewProject: "Voir le projet" },
+        projects: {
+            title: "Projets et réalisations",
+            viewProject: "Voir le projet",
+            viewLiveProject: "Voir le projet en ligne",
+        },
         projectPage: {
             backToProjects: "Retour aux projets",
             viewRepository: "Voir le dépôt GitHub",
+            viewLiveProject: "Voir le projet en ligne",
             description: "Description",
             objectives: "Objectifs",
             stack: "Technologies",
@@ -164,10 +179,15 @@ export const portfolioCopy: Record<Locale, PortfolioCopy> = {
                 { year: "2022", company: "Fyhary Soft", role: "Warehouse management", description: "Created an inventory and warehouse management application." },
             ],
         },
-        projects: { title: "Projects and work", viewProject: "View project" },
+        projects: {
+            title: "Projects and work",
+            viewProject: "View project",
+            viewLiveProject: "View live project",
+        },
         projectPage: {
             backToProjects: "Back to projects",
             viewRepository: "View GitHub repository",
+            viewLiveProject: "View live project",
             description: "Description",
             objectives: "Objectives",
             stack: "Technologies",

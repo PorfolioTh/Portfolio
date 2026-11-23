@@ -3,11 +3,12 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
+import { Button } from "@/components/ui/button";
 import { apiRequest, assetUrl } from "@/lib/api";
 import { fetchPortfolio, type PortfolioData } from "@/lib/portfolio-api";
 import { portfolioCopy, type Locale } from "@/lib/portfolio-copy";
 import {
-  Briefcase, Code2, Database, Facebook, Github, Instagram, LayoutTemplate,
+  Briefcase, Code2, Database, ExternalLink, Facebook, Github, Instagram, LayoutTemplate,
   GraduationCap, Mail, MapPin, MessageCircle, Moon, Palette, Phone, Sun, ListChecks, Wrench, X,
 } from "lucide-react";
 import handshake from "@/assets/handshake.jpg";
@@ -424,6 +425,16 @@ function Index() {
                     <span className="mt-5 inline-block font-medium text-brand">{copy.projects.viewProject}</span>
                   </div>
                 </Link>
+                {project.liveUrl && (
+                  <div className="px-6 pb-6">
+                    <Button asChild size="sm" variant="outline">
+                      <a href={project.liveUrl} target="_blank" rel="noreferrer noopener">
+                        <ExternalLink aria-hidden="true" />
+                        {copy.projects.viewLiveProject}
+                      </a>
+                    </Button>
+                  </div>
+                )}
               </article>
             );
           })}
