@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
-import { apiRequest, assetUrl } from "@/lib/api";
+import { API_URL, apiRequest, assetUrl } from "@/lib/api";
 import { fetchPortfolio, type PortfolioData } from "@/lib/portfolio-api";
 import { portfolioCopy, type Locale } from "@/lib/portfolio-copy";
 import {
@@ -50,6 +50,10 @@ export const Route = createFileRoute("/")({
       { property: "og:description", content: portfolioCopy.fr.metadata.socialDescription },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+    ],
+    links: [
+      { rel: "preconnect", href: API_URL, crossOrigin: "anonymous" },
+      { rel: "preload", href: `${API_URL}/api/portfolio`, as: "fetch", crossOrigin: "anonymous" },
     ],
   }),
   component: Index,
@@ -175,7 +179,7 @@ function Index() {
   const welcomeToastTimer = useRef<number | null>(null);
 
   const copy = portfolioCopy[language];
-  const portfolio = useQuery({ queryKey: ["portfolio"], queryFn: fetchPortfolio, retry: false });
+  const portfolio = useQuery({ queryKey: ["portfolio"], queryFn: fetchPortfolio, retry: false, staleTime: 60_000 });
   const photoSrc = assetUrl(portfolio.data?.profile.photoUrl) ?? null;
   const projects = portfolio.data?.projects ?? [];
   const skillCategories = portfolio.data ? groupSkills(portfolio.data.skills) : [];
@@ -367,6 +371,13 @@ function Index() {
       </section>
       <section id="competences" className="bg-surface py-24">
         <Title t={copy.skills.title} sub={copy.skills.subtitle} big />
+        {portfolio.isPending && <p role="status" className="page-rail text-muted-foreground">{copy.dataStatus.loading}</p>}
+        {portfolio.isError && !portfolio.data && (
+          <div role="alert" className="page-rail flex flex-wrap items-center gap-4 text-muted-foreground">
+            <p>{copy.dataStatus.error}</p>
+            <Button variant="outline" onClick={() => void portfolio.refetch()}>{copy.fallback.retry}</Button>
+          </div>
+        )}
         <div className="page-rail grid max-w-7xl gap-8 md:grid-cols-3">
           {skillCategories.map(({ title, items }, index) => {
             const Icon = skillIcons[index] ?? LayoutTemplate;
@@ -412,7 +423,7 @@ function Index() {
               <article key={project.id} className="card-soft dark:bg-card overflow-hidden transition hover:-translate-y-1">
                 <Link to="/projets/$projectId" params={{ projectId: String(project.id) }} className="block">
                   {imageSrc ? (
-                    <img src={imageSrc} alt={project.title} className="h-48 w-full object-cover" />
+                    <img src={imageSrc} alt={project.title} loading="lazy" decoding="async" className="h-48 w-full object-cover" />
                   ) : (
                     <div className="flex h-48 items-center justify-center bg-muted text-brand">
                       <Code2 className="h-10 w-10" aria-hidden="true" />

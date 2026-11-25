@@ -68,6 +68,7 @@ export function ResourceManager({ title, description, endpoint, queryKey, itemNa
       setDialogOpen(false);
       queryClient.invalidateQueries({ queryKey: ["admin", queryKey] });
       queryClient.invalidateQueries({ queryKey: ["admin", "dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["portfolio"] });
     },
   });
 
@@ -77,6 +78,7 @@ export function ResourceManager({ title, description, endpoint, queryKey, itemNa
       setToDelete(null);
       queryClient.invalidateQueries({ queryKey: ["admin", queryKey] });
       queryClient.invalidateQueries({ queryKey: ["admin", "dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["portfolio"] });
     },
   });
 

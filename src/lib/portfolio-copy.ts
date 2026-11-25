@@ -2,6 +2,7 @@ export type Locale = "fr" | "en";
 
 export type PortfolioCopy = {
     metadata: { title: string; description: string; socialDescription: string };
+    dataStatus: { loading: string; error: string };
     navigation: { home: string; skills: string; experience: string; projects: string; education: string; contact: string };
     languageSelector: string;
     theme: { switchToLight: string; switchToDark: string; light: string; dark: string; drag: string };
@@ -44,6 +45,7 @@ export const portfolioCopy: Record<Locale, PortfolioCopy> = {
             description: "Portfolio de RASOLOFOSON Théophile, développeur Vue, React et Node.js à Antsirabe.",
             socialDescription: "Applications modernes, rapides et scalables en Vue, React et Node.js.",
         },
+        dataStatus: { loading: "Chargement des données du portfolio…", error: "Les données du portfolio n'ont pas pu être chargées." },
         navigation: { home: "Accueil", skills: "Compétences", experience: "Expériences", projects: "Projets", education: "Éducation", contact: "Contact" },
         languageSelector: { currentFrench: "Langue sélectionnée : français", currentEnglish: "Langue sélectionnée : anglais", switchToEnglish: "Passer en anglais", switchToFrench: "Passer en français" },
         theme: { switchToLight: "Activer le mode clair", switchToDark: "Activer le mode sombre", light: "Mode clair", dark: "Mode sombre", drag: "Glisser pour déplacer" },
@@ -144,6 +146,7 @@ export const portfolioCopy: Record<Locale, PortfolioCopy> = {
             description: "Portfolio of RASOLOFOSON Théophile, a Vue, React, and Node.js developer based in Antsirabe.",
             socialDescription: "Modern, fast, and scalable applications with Vue, React, and Node.js.",
         },
+        dataStatus: { loading: "Loading portfolio data…", error: "Portfolio data could not be loaded." },
         navigation: { home: "Home", skills: "Skills", experience: "Experience", projects: "Projects", education: "Education", contact: "Contact" },
         languageSelector: { currentFrench: "Selected language: French", currentEnglish: "Selected language: English", switchToEnglish: "Switch to English", switchToFrench: "Switch to French" },
         theme: { switchToLight: "Switch to light mode", switchToDark: "Switch to dark mode", light: "Light mode", dark: "Dark mode", drag: "Drag to move" },
